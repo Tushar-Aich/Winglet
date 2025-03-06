@@ -1,7 +1,7 @@
 import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
 import fs from "fs";
-import { ApiError } from "../utils/ApiError";
+import { ApiError } from "../utils/ApiError.js";
 
 dotenv.config();
 
@@ -19,8 +19,6 @@ const uploadOnCloudinary = async (localFilePath: string) => {
     const response = await cloudinary.uploader.upload(localFilePath, {
       resource_type: "auto",
     });
-    //successful file upload
-    console.log("file uploaded successfully from cloudinary.js file", response);
     fs.unlinkSync(localFilePath); // remove the locally stored file from the server as the upload was unsuccessful
     return response;
   } catch (error) {
@@ -33,7 +31,6 @@ const uploadOnCloudinary = async (localFilePath: string) => {
 const deleteFile = async (oldPublic_id: string) => {
   try {
     const response = await cloudinary.uploader.destroy(oldPublic_id);
-    console.log("response of delete function in cloudinary.js file", response);
     return response;
   } catch (error) {
     throw new ApiError(

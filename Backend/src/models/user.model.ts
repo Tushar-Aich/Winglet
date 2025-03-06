@@ -5,7 +5,7 @@ export interface IUser extends Document {
   userName: String;
   email: String;
   password: String;
-  displayName: String;
+  OGName: String;
   bio?: String;
   avatar: String;
   coverImage: String;
@@ -46,7 +46,6 @@ const UserSchema = new Schema<IUser>(
       required: [true, "Email is required"],
       unique: true,
       trim: true,
-      lowercase: true,
       match: [/^\S+@\S+\.\S+$/, "Please provide a valid email address"],
     },
     password: {
@@ -54,7 +53,7 @@ const UserSchema = new Schema<IUser>(
       required: [true, "Password is required"],
       minlength: [8, "Password must be atleast 8 characters"],
     },
-    displayName: {
+    OGName: {
       type: String,
       required: [true, "Display Name is required"],
       maxlength: [20, "Display Name must not be more than 20 characters"],
@@ -147,9 +146,11 @@ UserSchema.pre("save", async function (next) {
   }
 });
 
-UserSchema.methods.comparePassword = async function (candidatePassword: string): Promise<Boolean> {
-  return bcrypt.compare(candidatePassword, this.password)
-}
+UserSchema.methods.comparePassword = async function (
+  candidatePassword: string
+): Promise<Boolean> {
+  return bcrypt.compare(candidatePassword, this.password);
+};
 
 const UserModel =
   (mongoose.models.User as mongoose.Model<IUser>) ||
