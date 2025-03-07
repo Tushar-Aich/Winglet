@@ -2,6 +2,8 @@
 
 A full-stack social media platform inspired by X (formerly Twitter), built with modern web technology.
 
+![logo](<https://media-hosting.imagekit.io//ac6c4d06b2374220/1000006039.png?Expires=1835970295&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=NfGBfW5IzEeT47UYo3rH6xy2vpQPt7cxxawBMVAJhnyVngkvIquhmOk37jIMFkm4Y6D~XN4EOVBWIIz51675zch7gRcBQSDDy~UYlP2ceEK5iTg03OqPdt60DY4ORB1RPQ0Le2wX-7hQjvrBbafqmyDanaAjujfvYba8QnO6eyu4PqdfXFWCFOly5aNMB1Ip2emriV1ZPprIxACNY9gaemq0Yx~gB6u-mmW5ahqQvKuJA0cPi1VSDynQKlfSGqmdb1bDwyznqZsx8apa-Bwp-s6RDqcwGhT9A~tzScQRyb-e~LfGivGzCgTNUIvRLjDkLW7CXer1QxIx5wBtRx0Tzw__>)
+
 ## 📋 Table of Contents
 
 - [Overview](#overview)
