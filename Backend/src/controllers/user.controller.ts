@@ -7,6 +7,7 @@ import redis from "../db/Redis.js";
 import { sendVerificationEmail } from "../utils/EmailVerification.js";
 import { uploadOnCloudinary } from "../lib/Cloudinary.js";
 import { generateAccessToken, generateRefreshToken } from "../lib/jwt.js";
+import jwt from "jsonwebtoken";
 
 const sendMail = AsyncHandler(async (req: Request, res: Response) => {
   const { email } = req.body;
@@ -134,7 +135,7 @@ const login = AsyncHandler(async (req: Request, res: Response) => {
   const isPasswordCorrect = await user.comparePassword(password);
   if (!isPasswordCorrect) throw new ApiError(400, "Password is incorrect");
 
-  const AccessToken = generateAccessToken(user._id, user.email, user.userName);
+  const accessToken = generateAccessToken(user._id, user.email, user.userName);
   const refreshToken = generateRefreshToken(user._id);
 
   const updatedUser = await UserModel.findByIdAndUpdate(user._id, {
@@ -146,22 +147,112 @@ const login = AsyncHandler(async (req: Request, res: Response) => {
   const loggedInUser = await UserModel.findById(user._id).select(
     "-password -refreshToken"
   );
+  
+  // Set the security based on environment
+  const isProduction = process.env.NODE_ENV === "production";
 
   return res
     .status(200)
-    .cookie("accessToken", AccessToken, {
+    .cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: true,
+      secure: isProduction,
       sameSite: "strict",
       maxAge: 24 * 60 * 60 * 1000,
     })
     .cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: true,
+      secure: isProduction,
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     })
-    .json(new ApiResponse(200, loggedInUser, "User logged in successfully"));
+    .json(
+      new ApiResponse(
+        200, 
+        { 
+          user: loggedInUser, 
+          accessToken,
+          refreshToken
+        }, 
+        "User logged in successfully"
+      )
+    );
 });
 
-export { sendMail, verifyOTP, signUp, login };
+const refreshAccessToken = AsyncHandler(async (req: Request, res: Response) => {
+  try {
+    // Extract the refresh token from cookies or body
+    const incomingRefreshToken = req.cookies?.refreshToken || req.body?.refreshToken;
+    
+    if (!incomingRefreshToken) {
+      throw new ApiError(401, "Unauthorized request: No refresh token provided");
+    }
+
+    // Verify the token
+    const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET as string;
+    if (!REFRESH_TOKEN_SECRET) {
+      throw new ApiError(500, "Server configuration error: Missing refresh token secret");
+    }
+    
+    const decodedToken = jwt.verify(incomingRefreshToken, REFRESH_TOKEN_SECRET) as jwt.JwtPayload;
+    
+    // Find the user
+    const user = await UserModel.findById(decodedToken?._id);
+    if (!user) {
+      throw new ApiError(401, "Invalid refresh token: User not found");
+    }
+
+    // Validate the token matches the one in database
+    if (incomingRefreshToken !== user.refreshToken) {
+      throw new ApiError(401, "Refresh token is expired or has been used");
+    }
+
+    // Generate new tokens
+    const accessToken = generateAccessToken(user._id, user.email, user.userName);
+    const newRefreshToken = generateRefreshToken(user._id);
+    
+    // Update the user's refresh token in the database
+    await UserModel.findByIdAndUpdate(user._id, {
+      refreshToken: newRefreshToken,
+      lastActive: Date.now()
+    });
+
+    // Set the security based on environment
+    const isProduction = process.env.NODE_ENV === "production";
+    
+    return res
+      .status(200)
+      .cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: "strict",
+        maxAge: 24 * 60 * 60 * 1000,
+      })
+      .cookie("refreshToken", newRefreshToken, {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      })
+      .json(
+        new ApiResponse(
+          200,
+          {
+            accessToken,
+            refreshToken: newRefreshToken,
+          },
+          "Access token refreshed successfully"
+        )
+      );
+  } catch (error: any) {
+    if (error instanceof ApiError) {
+      throw error;
+    } else if (error.name === "JsonWebTokenError") {
+      throw new ApiError(401, "Invalid refresh token format");
+    } else if (error.name === "TokenExpiredError") {
+      throw new ApiError(401, "Refresh token has expired");
+    }
+    throw new ApiError(500, "Internal server error during token refresh");
+  }
+});
+
+export { sendMail, verifyOTP, signUp, login, refreshAccessToken };

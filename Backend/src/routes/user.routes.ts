@@ -1,7 +1,8 @@
 import { Router } from "express";
-import { sendMail, signUp, verifyOTP, login } from "../controllers/user.controller.js";
+import { sendMail, signUp, verifyOTP, login, refreshAccessToken } from "../controllers/user.controller.js";
 import OTPrateLimit from '../middlewares/OTPrateLimit.middleware.js'
 import { upload } from "../middlewares/multer.middleware.js";
+import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 
 const router = Router()
@@ -22,5 +23,6 @@ router.route('/signUp').post(
     signUp
 )
 router.route('/login').post(login)
+router.route('/refresh-token').post(refreshAccessToken)
 
 export default router;
