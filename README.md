@@ -108,8 +108,6 @@ cd Backend
 3. Install dependencies
 ```bash
 npm install
-# or
-yarn install
 ```
 
 4. Set up environment variables
@@ -118,8 +116,6 @@ Create a `.env` file in the server directory and add the variables listed in the
 5. Start the development server
 ```bash
 npm run dev
-# or
-yarn dev
 ```
 
 ### Frontend Setup
@@ -132,8 +128,6 @@ cd ../Frontend
 2. Install dependencies
 ```bash
 npm install
-# or
-yarn install
 ```
 
 3. Set up environment variables
@@ -142,8 +136,6 @@ Create a `.env` file in the client directory and add the necessary variables.
 4. Start the development server
 ```bash
 npm run dev
-# or
-yarn dev
 ```
 
 ## 📝 Usage
