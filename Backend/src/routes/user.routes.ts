@@ -15,7 +15,7 @@ import {
   addBio,
   addBirthDate,
   deleteAcc
-} from "../controllers/user.controller.js";
+} from "../controllers/User/user.controller.js";
 import OTPrateLimit from "../middlewares/OTPrateLimit.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";

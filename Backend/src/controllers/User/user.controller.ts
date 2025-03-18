@@ -1,15 +1,15 @@
 import { Request, Response } from "express";
-import { AsyncHandler } from "../utils/Asynchandler.js";
-import { ApiError } from "../utils/ApiError.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
-import UserModel, { IUser } from "../models/user.model.js";
-import redis from "../db/Redis.js";
+import { AsyncHandler } from "../../utils/Asynchandler.js";
+import { ApiError } from "../../utils/ApiError.js";
+import { ApiResponse } from "../../utils/ApiResponse.js";
+import UserModel, { IUser } from "../../models/user.model.js";
+import redis from "../../db/Redis.js";
 import {
   sendVerificationEmail,
   sendForgotPasswordEmail,
-} from "../utils/EmailVerification.js";
-import { uploadOnCloudinary, deleteFile } from "../lib/Cloudinary.js";
-import { generateAccessToken, generateRefreshToken } from "../lib/jwt.js";
+} from "../../utils/EmailVerification.js";
+import { uploadOnCloudinary, deleteFile } from "../../lib/Cloudinary.js";
+import { generateAccessToken, generateRefreshToken } from "../../lib/jwt.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
