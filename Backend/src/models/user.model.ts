@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from "mongoose";
 import bcrypt from "bcrypt";
 
 export interface IUser extends Document {
+  _id: String;
   userName: String;
   email: String;
   password: String;
@@ -134,7 +135,7 @@ const UserSchema = new Schema<IUser>(
   }
 );
 
-UserSchema.pre("save", async function (next) {
+UserSchema.pre<IUser>("save", async function (next) {
   if (!this.isModified("password")) return next();
 
   try {

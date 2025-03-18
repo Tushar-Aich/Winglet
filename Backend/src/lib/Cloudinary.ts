@@ -28,10 +28,16 @@ const uploadOnCloudinary = async (localFilePath: string) => {
   }
 };
 
-const deleteFile = async (oldPublic_id: string) => {
+const deleteFile = async (cloudinaryURL: string) => {
   try {
-    const response = await cloudinary.uploader.destroy(oldPublic_id);
-    return response;
+    const url = cloudinaryURL
+    const str = url.split('/')
+    const word = str[7].toString()
+    const id = word.split(".")[0]
+
+    const response = await cloudinary.uploader.destroy(id)
+    return response
+    
   } catch (error) {
     throw new ApiError(
       400,

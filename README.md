@@ -1,6 +1,6 @@
-# Winglet
+<h1 align="center"><em><strong>Winglet</strong></em></h1>
 
-A full-stack social media platform inspired by X (formerly Twitter), built with modern web technology.
+<h3 align="center"><em><strong>A full-stack social media platform inspired by X (formerly Twitter), built with modern web technology.</strong></em></h3>
 
 ![logo](<https://media-hosting.imagekit.io//ac6c4d06b2374220/1000006039.png?Expires=1835970295&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=NfGBfW5IzEeT47UYo3rH6xy2vpQPt7cxxawBMVAJhnyVngkvIquhmOk37jIMFkm4Y6D~XN4EOVBWIIz51675zch7gRcBQSDDy~UYlP2ceEK5iTg03OqPdt60DY4ORB1RPQ0Le2wX-7hQjvrBbafqmyDanaAjujfvYba8QnO6eyu4PqdfXFWCFOly5aNMB1Ip2emriV1ZPprIxACNY9gaemq0Yx~gB6u-mmW5ahqQvKuJA0cPi1VSDynQKlfSGqmdb1bDwyznqZsx8apa-Bwp-s6RDqcwGhT9A~tzScQRyb-e~LfGivGzCgTNUIvRLjDkLW7CXer1QxIx5wBtRx0Tzw__>)
 
@@ -108,8 +108,6 @@ cd Backend
 3. Install dependencies
 ```bash
 npm install
-# or
-yarn install
 ```
 
 4. Set up environment variables
@@ -118,8 +116,6 @@ Create a `.env` file in the server directory and add the variables listed in the
 5. Start the development server
 ```bash
 npm run dev
-# or
-yarn dev
 ```
 
 ### Frontend Setup
@@ -132,8 +128,6 @@ cd ../Frontend
 2. Install dependencies
 ```bash
 npm install
-# or
-yarn install
 ```
 
 3. Set up environment variables
@@ -142,13 +136,11 @@ Create a `.env` file in the client directory and add the necessary variables.
 4. Start the development server
 ```bash
 npm run dev
-# or
-yarn dev
 ```
 
 ## 📝 Usage
 
-After setting up both the backend and frontend, you can access the application at `http://localhost:3000` (or whatever port your React app is running on).
+After setting up both the backend and frontend, you can access the application at `http://localhost:PORT` (or whatever port your React app is running on).
 
 To use the application:
 
@@ -201,20 +193,26 @@ The API follows RESTful principles and includes the following main endpoints:
 ```
 Winglet/
 ├──Backend/                  # Backend code
+│   ├── public/
 │   ├── src/
-│   │   ├── lib/         # Configuration files
 │   │   ├── controllers/     # Request handlers
+│   │   ├── db/              # Database Configuration
+│   │   ├── emails/          # Email Templates
+│   │   ├── lib/             # Configuration files
 │   │   ├── middleware/      # Custom middleware
 │   │   ├── models/          # Mongoose models
 │   │   ├── routes/          # API routes
-│   │   ├── services/        # Business logic
+│   │   ├── types/           # Typescript type definitions
 │   │   ├── utils/           # Utility functions
 │   │   ├── app.ts           # Express app setup
-│   │   └── index.ts        # Server entry point
-│   ├── .env                 # Environment variables
-│   └── package.json         # Backend dependencies
+│   │   └── index.ts         # Server entry point
+│   ├── .gitignore           # Ignored Files
+│   ├── package-lock.json
+│   ├── package.json         # Backend dependencies
+│   ├── README.md            # Backend documentation
+│   └── tsconfig.json        # Typescript configuration
 │
-├── Frontend/                  # Frontend code
+├── Frontend/                # Frontend code
 │   ├── public/              # Static files
 │   ├── src/
 │   │   ├── assets/          # Images, fonts, etc.
@@ -228,7 +226,7 @@ Winglet/
 │   │   ├── utils/           # Utility functions
 │   │   ├── App.tsx          # Main component
 │   │   └── index.tsx        # Entry point
-│   ├── .env                 # Environment variables
+│   ├── .gitignore           # Ignored Files
 │   └── package.json         # Frontend dependencies
 │
 └── README.md                # Project documentation
@@ -243,10 +241,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
 
 ---
 

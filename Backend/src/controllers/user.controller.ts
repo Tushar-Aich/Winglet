@@ -2,12 +2,16 @@ import { Request, Response } from "express";
 import { AsyncHandler } from "../utils/Asynchandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import UserModel from "../models/user.model.js";
+import UserModel, { IUser } from "../models/user.model.js";
 import redis from "../db/Redis.js";
-import { sendVerificationEmail } from "../utils/EmailVerification.js";
-import { uploadOnCloudinary } from "../lib/Cloudinary.js";
+import {
+  sendVerificationEmail,
+  sendForgotPasswordEmail,
+} from "../utils/EmailVerification.js";
+import { uploadOnCloudinary, deleteFile } from "../lib/Cloudinary.js";
 import { generateAccessToken, generateRefreshToken } from "../lib/jwt.js";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 const sendMail = AsyncHandler(async (req: Request, res: Response) => {
   const { email } = req.body;
@@ -68,6 +72,7 @@ const signUp = AsyncHandler(async (req: Request, res: Response) => {
   });
   if (existingUser) throw new ApiError(400, "Email already exists");
 
+  console.log(req.files);
   let avatarLocalPath;
   if (req.files && "avatar" in req.files && Array.isArray(req.files.avatar)) {
     avatarLocalPath = req.files.avatar[0].path;
@@ -147,7 +152,7 @@ const login = AsyncHandler(async (req: Request, res: Response) => {
   const loggedInUser = await UserModel.findById(user._id).select(
     "-password -refreshToken"
   );
-  
+
   // Set the security based on environment
   const isProduction = process.env.NODE_ENV === "production";
 
@@ -167,12 +172,12 @@ const login = AsyncHandler(async (req: Request, res: Response) => {
     })
     .json(
       new ApiResponse(
-        200, 
-        { 
-          user: loggedInUser, 
+        200,
+        {
+          user: loggedInUser,
           accessToken,
-          refreshToken
-        }, 
+          refreshToken,
+        },
         "User logged in successfully"
       )
     );
@@ -181,20 +186,30 @@ const login = AsyncHandler(async (req: Request, res: Response) => {
 const refreshAccessToken = AsyncHandler(async (req: Request, res: Response) => {
   try {
     // Extract the refresh token from cookies or body
-    const incomingRefreshToken = req.cookies?.refreshToken || req.body?.refreshToken;
-    
+    const incomingRefreshToken =
+      req.cookies?.refreshToken || req.body?.refreshToken;
+
     if (!incomingRefreshToken) {
-      throw new ApiError(401, "Unauthorized request: No refresh token provided");
+      throw new ApiError(
+        401,
+        "Unauthorized request: No refresh token provided"
+      );
     }
 
     // Verify the token
     const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET as string;
     if (!REFRESH_TOKEN_SECRET) {
-      throw new ApiError(500, "Server configuration error: Missing refresh token secret");
+      throw new ApiError(
+        500,
+        "Server configuration error: Missing refresh token secret"
+      );
     }
-    
-    const decodedToken = jwt.verify(incomingRefreshToken, REFRESH_TOKEN_SECRET) as jwt.JwtPayload;
-    
+
+    const decodedToken = jwt.verify(
+      incomingRefreshToken,
+      REFRESH_TOKEN_SECRET
+    ) as jwt.JwtPayload;
+
     // Find the user
     const user = await UserModel.findById(decodedToken?._id);
     if (!user) {
@@ -207,18 +222,22 @@ const refreshAccessToken = AsyncHandler(async (req: Request, res: Response) => {
     }
 
     // Generate new tokens
-    const accessToken = generateAccessToken(user._id, user.email, user.userName);
+    const accessToken = generateAccessToken(
+      user._id,
+      user.email,
+      user.userName
+    );
     const newRefreshToken = generateRefreshToken(user._id);
-    
+
     // Update the user's refresh token in the database
     await UserModel.findByIdAndUpdate(user._id, {
       refreshToken: newRefreshToken,
-      lastActive: Date.now()
+      lastActive: Date.now(),
     });
 
     // Set the security based on environment
     const isProduction = process.env.NODE_ENV === "production";
-    
+
     return res
       .status(200)
       .cookie("accessToken", accessToken, {
@@ -255,4 +274,170 @@ const refreshAccessToken = AsyncHandler(async (req: Request, res: Response) => {
   }
 });
 
-export { sendMail, verifyOTP, signUp, login, refreshAccessToken };
+const logout = AsyncHandler(async (req: Request, res: Response) => {
+  await UserModel.findByIdAndUpdate(
+    (req.user as IUser)._id,
+    {
+      $unset: {
+        refreshToken: 1,
+      },
+    },
+    {
+      new: true,
+    }
+  );
+
+  const isProduction = process.env.NODE_ENV === "production";
+
+  return res
+    .status(200)
+    .clearCookie("accessToken", {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: "strict",
+    })
+    .clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: "strict",
+    })
+    .json(new ApiResponse(200, {}, "User logged out successfully"));
+});
+
+const forgotPasswordEmail = AsyncHandler(
+  async (req: Request, res: Response) => {
+    const { email } = req.body;
+    if (!email) throw new ApiError(400, "Email is required");
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const hashedOtp = await bcrypt.hash(otp, 10);
+
+    const user = await UserModel.findOne({
+      $or: [{ email }],
+    });
+
+    if (!user) throw new ApiError(400, "Invalid email");
+
+    await redis.setex(`forgotPasswordOtp:${user?._id}`, 180, hashedOtp); //OTP for 3 minutes
+
+    const response = await sendForgotPasswordEmail(user?.email as string, otp);
+    if (!response.success)
+      throw new ApiError(response.statusCode, response.message);
+
+    return res
+      .status(response.statusCode)
+      .json(
+        new ApiResponse(response.statusCode, response.data, response.message)
+      );
+  }
+);
+
+const forgotPasswordOtpVerification = AsyncHandler(
+  async (req: Request, res: Response) => {
+    const { email, otp } = req.body;
+    if (!email) throw new ApiError(400, "Email is needed");
+    if (!otp) throw new ApiError(400, "OTP is needed");
+
+    const user = await UserModel.findOne({
+      $or: [{ email }],
+    });
+
+    if (!user) throw new ApiError(400, "Invalid email");
+
+    const cachedOTP = await redis.get(`forgotPasswordOtp:${user?._id}`);
+    if (!cachedOTP) throw new ApiError(400, "OTP expired");
+
+    const isOtpCorrect = await bcrypt.compare(otp, cachedOTP);
+    if (!isOtpCorrect) throw new ApiError(400, "Incorrect OTP");
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, "Verified User for password Change"));
+  }
+);
+
+const changePassword = AsyncHandler(async (req: Request, res: Response) => {
+  const { email, newPassword } = req.body;
+  if (!newPassword) throw new ApiError(400, "New Password is required");
+  if (!email) throw new ApiError(400, "Email is required");
+
+  const user = await UserModel.findOne({
+    $or: [{ email }],
+  });
+  if (!user) throw new ApiError(400, "User not found please try again");
+
+  const isPasswordSame = await bcrypt.compare(
+    newPassword,
+    user?.password as string
+  );
+  if (isPasswordSame)
+    throw new ApiError(400, "Same passwords aren't acceptable");
+
+  user.password = newPassword;
+  await user.save();
+
+  const updatedUser = await UserModel.findOne(user?._id).select("-password -refreshToken");
+  return res
+    .status(200)
+    .json(new ApiResponse(200, updatedUser, "Password successfully changed"));
+});
+
+const getCurrentUser = AsyncHandler(async (req: Request, res: Response) => {
+  console.log(req.user as IUser);
+  return res
+    .status(200)
+    .json(new ApiResponse(200, req.user as IUser, "User Fetched successfully"));
+});
+
+const updateAvatar = AsyncHandler(async (req: Request, res: Response) => {
+  const url = (req.user as IUser)?.avatar;
+  if (!url) throw new ApiError(500, "Internal server Error");
+
+  let avatarLocalPath;
+  if (req.files && "avatar" in req.files && Array.isArray(req.files.avatar)) {
+    avatarLocalPath = req.files.avatar[0].path;
+  }
+
+  if (!avatarLocalPath) {
+    throw new ApiError(400, "Avatar is required");
+  }
+
+  const avatar = await uploadOnCloudinary(avatarLocalPath);
+  if (!avatar)
+    throw new ApiError(400, "Error while uploading file in cloudinary");
+
+  const updatedUser = await UserModel.findByIdAndUpdate(
+    (req.user as IUser)?._id,
+    {
+      $set: {
+        avatar: avatar.url,
+      },
+    },
+    {
+      new: true,
+    }
+  ).select("-password, -refreshToken");
+
+  if (!updatedUser)
+    throw new ApiError(400, "Updating avatar in database failed");
+
+  const response = await deleteFile(url as string);
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, updatedUser, "Avatar updated Successfully"));
+});
+
+export {
+  sendMail,
+  verifyOTP,
+  signUp,
+  login,
+  refreshAccessToken,
+  logout,
+  forgotPasswordEmail,
+  forgotPasswordOtpVerification,
+  changePassword,
+  getCurrentUser,
+  updateAvatar,
+};
