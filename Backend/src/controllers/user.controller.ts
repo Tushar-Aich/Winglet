@@ -376,7 +376,9 @@ const changePassword = AsyncHandler(async (req: Request, res: Response) => {
   user.password = newPassword;
   await user.save();
 
-  const updatedUser = await UserModel.findOne(user?._id).select("-password -refreshToken");
+  const updatedUser = await UserModel.findOne(user?._id).select(
+    "-password -refreshToken"
+  );
   return res
     .status(200)
     .json(new ApiResponse(200, updatedUser, "Password successfully changed"));
@@ -421,11 +423,134 @@ const updateAvatar = AsyncHandler(async (req: Request, res: Response) => {
   if (!updatedUser)
     throw new ApiError(400, "Updating avatar in database failed");
 
-  const response = await deleteFile(url as string);
+  await deleteFile(url as string);
 
   return res
     .status(200)
     .json(new ApiResponse(200, updatedUser, "Avatar updated Successfully"));
+});
+
+const updateCoverImage = AsyncHandler(async (req: Request, res: Response) => {
+  const url = (req.user as IUser)?.coverImage;
+  if (!url) throw new ApiError(500, "Internal server Error");
+
+  let coverImageLocalPath;
+  if (
+    req.files &&
+    !Array.isArray(req.files) &&
+    "coverImage" in req.files &&
+    Array.isArray(req.files.coverImage) &&
+    req.files.coverImage.length > 0
+  ) {
+    coverImageLocalPath = req.files.coverImage[0].path;
+  }
+
+  const coverImage = coverImageLocalPath
+    ? await uploadOnCloudinary(coverImageLocalPath)
+    : undefined;
+
+  if (!coverImage)
+    throw new ApiError(400, "Error while uploading to cloudinary");
+
+  const updatedUser = await UserModel.findByIdAndUpdate(
+    (req.user as IUser)?._id,
+    {
+      $set: {
+        coverImage: coverImage.url,
+      },
+    },
+    {
+      new: true,
+    }
+  ).select("-password -refreshToken");
+
+  if (!updatedUser)
+    throw new ApiError(400, "Updating avatar in database failed");
+
+  await deleteFile(url as string);
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, updatedUser, "Avatar updated Successfully"));
+});
+
+const addBio = AsyncHandler(async (req: Request, res: Response) => {
+  const { bio } = req.body;
+  if (!bio) throw new ApiError(400, "Bio is required");
+
+  if ((req.user as IUser).bio) {
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      (req.user as IUser)._id,
+      {
+        $set: {
+          bio,
+        },
+      },
+      {
+        new: true,
+      }
+    ).select("-password -refreshToken");
+    return res
+      .status(200)
+      .json(new ApiResponse(200, updatedUser, "Bio added Successfully"));
+  } else {
+    const user = await UserModel.findById((req.user as IUser)._id);
+    if (!user) throw new ApiError(500, "internal server error");
+    user.bio = bio;
+    await user.save();
+
+    const updatedUser = await UserModel.findById(
+      (req.user as IUser)._id
+    ).select("-password -refreshToken");
+    return res
+      .status(200)
+      .json(new ApiResponse(200, updatedUser, "Bio added Successfully"));
+  }
+});
+
+const addBirthDate = AsyncHandler(async (req: Request, res: Response) => {
+  const { birthDate } = req.body;
+  if (!birthDate) throw new ApiError(400, "Birth Date is required");
+
+  if ((req.user as IUser).birthDate) {
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      (req.user as IUser)._id,
+      {
+        $set: {
+          birthDate,
+        },
+      },
+      {
+        new: true,
+      }
+    ).select("-password -refreshToken");
+    return res
+      .status(200)
+      .json(new ApiResponse(200, updatedUser, "Birth Date added Successfully"));
+  } else {
+    const user = await UserModel.findById((req.user as IUser)._id);
+    if (!user) throw new ApiError(500, "internal server error");
+    user.birthDate = birthDate;
+    await user.save();
+
+    const updatedUser = await UserModel.findById(
+      (req.user as IUser)._id
+    ).select("-password -refreshToken");
+    return res
+      .status(200)
+      .json(new ApiResponse(200, updatedUser, "Birth Date added Successfully"));
+  }
+});
+
+const deleteAcc = AsyncHandler(async (req: Request, res: Response) => {
+  const deletedUser = await UserModel.findByIdAndDelete(
+    (req.user as IUser)._id
+  );
+  if (!deletedUser) throw new ApiError(404, "User not found");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "User deleted successfully"));
 });
 
 export {
@@ -440,4 +565,8 @@ export {
   changePassword,
   getCurrentUser,
   updateAvatar,
+  updateCoverImage,
+  addBio,
+  addBirthDate,
+  deleteAcc,
 };

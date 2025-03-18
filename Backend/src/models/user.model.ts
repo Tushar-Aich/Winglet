@@ -10,7 +10,7 @@ export interface IUser extends Document {
   bio?: String;
   avatar: String;
   coverImage: String;
-  birthDate?: Date;
+  birthDate?: String;
   followers: mongoose.Types.ObjectId[];
   following: mongoose.Types.ObjectId[];
   posts: mongoose.Types.ObjectId[];
@@ -71,7 +71,7 @@ const UserSchema = new Schema<IUser>(
       type: String,
     },
     birthDate: {
-      type: Date,
+      type: String,
     },
     followers: [
       {
