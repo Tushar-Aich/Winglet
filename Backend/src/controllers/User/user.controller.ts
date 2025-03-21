@@ -304,8 +304,7 @@ const logout = AsyncHandler(async (req: Request, res: Response) => {
     .json(new ApiResponse(200, {}, "User logged out successfully"));
 });
 
-const forgotPasswordEmail = AsyncHandler(
-  async (req: Request, res: Response) => {
+const forgotPasswordEmail = AsyncHandler(async (req: Request, res: Response) => {
     const { email } = req.body;
     if (!email) throw new ApiError(400, "Email is required");
 
@@ -332,8 +331,7 @@ const forgotPasswordEmail = AsyncHandler(
   }
 );
 
-const forgotPasswordOtpVerification = AsyncHandler(
-  async (req: Request, res: Response) => {
+const forgotPasswordOtpVerification = AsyncHandler(async (req: Request, res: Response) => {
     const { email, otp } = req.body;
     if (!email) throw new ApiError(400, "Email is needed");
     if (!otp) throw new ApiError(400, "OTP is needed");
