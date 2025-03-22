@@ -37,6 +37,13 @@
   --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
   --sidebar-border: oklch(0.929 0.013 255.508);
   --sidebar-ring: oklch(0.704 0.04 256.788);
+  --winglet-pink: oklch(86.66% 0.067 346.53);
+	--winglet-darkpink: oklch(76.55% 0.105 348.48);
+	--winglet-lightpink: oklch(94.14% 0.0298 348.2);
+	--winglet-dark: oklch(18.36% 0.0241 343.87);
+	--winglet-light: oklch(100% 0 0);
+	--winglet-gray: oklch(65.57% 0.0082 260.73);
+	--winglet-light-gray: oklch(98.16% 0.0017 247.84);
 }
 
 .dark {
@@ -71,6 +78,13 @@
   --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
+  --winglet-pink: oklch(86.66% 0.067 346.53);
+	--winglet-darkpink: oklch(76.55% 0.105 348.48);
+	--winglet-lightpink: oklch(94.14% 0.0298 348.2);
+	--winglet-dark: oklch(18.36% 0.0241 343.87);
+	--winglet-light: oklch(100% 0 0);
+	--winglet-gray: oklch(65.57% 0.0082 260.73);
+	--winglet-light-gray: oklch(98.16% 0.0017 247.84);
 }
 
 @theme inline {
@@ -119,20 +133,45 @@
     @apply bg-background text-foreground;
   }
   .glass-morphism {
-    @apply bg-white/80 dark:bg-(--winglet-dark)/70 backdrop-blur-md border border-white/20 dark:border-(--winglet-dark)/20 
+    @apply bg-white/80 dark:bg-[#1A0E15]/70 backdrop-blur-md border border-white/20 dark:border-[#1A0E15]/20 
   }
 
   .nav-glass {
-    @apply bg-white/80 dark:bg-(--winglet-dark)/80 backdrop-blur-sm;
+    @apply bg-white/80 dark:bg-[#1A0E15]/80 backdrop-blur-sm;
   }
 
   .gradient-text {
-    @apply bg-gradient-to-r from-(--winglet-darkpink) to-pink-300 text-transparent bg-clip-text;
+    @apply bg-gradient-to-r from-[#E597BE] to-pink-300 text-transparent bg-clip-text;
   }
+  
+  /* Winglet color utility classes */
+  .text-winglet-pink { @apply text-[#F5C2DC] }
+  .text-winglet-darkpink { @apply text-[#E597BE] }
+  .text-winglet-lightpink { @apply text-[#FCE4EF] }
+  .text-winglet-dark { @apply text-[#1A0E15] }
+  .text-winglet-light { @apply text-[#FFFFFF] }
+  .text-winglet-gray { @apply text-[#8E9196] }
+  .text-winglet-light-gray { @apply text-[#F8F9FA] }
+  
+  .bg-winglet-pink { @apply bg-[#F5C2DC] }
+  .bg-winglet-darkpink { @apply bg-[#E597BE] }
+  .bg-winglet-lightpink { @apply bg-[#FCE4EF] }
+  .bg-winglet-dark { @apply bg-[#1A0E15] }
+  .bg-winglet-light { @apply bg-[#FFFFFF] }
+  .bg-winglet-gray { @apply bg-[#8E9196] }
+  .bg-winglet-light-gray { @apply bg-[#F8F9FA] }
+  
+  .border-winglet-pink { @apply border-[#F5C2DC] }
+  .border-winglet-darkpink { @apply border-[#E597BE] }
+  .border-winglet-lightpink { @apply border-[#FCE4EF] }
+  .border-winglet-dark { @apply border-[#1A0E15] }
+  .border-winglet-light { @apply border-[#FFFFFF] }
+  .border-winglet-gray { @apply border-[#8E9196] }
+  .border-winglet-light-gray { @apply border-[#F8F9FA] }
 }
 
 .feature-card {
-  @apply p-6 rounded-xl bg-white dark:bg-(--winglet-dark)/30 border border-(--winglet-pink)/10 shadow-(--subtle) transition-all duration-300 hover:shadow-(--glass) hover:border-(--winglet-pink)/30;
+  @apply p-6 rounded-xl bg-white dark:bg-[#1A0E15]/30 border border-[#F5C2DC]/10 shadow-(--subtle) transition-all duration-300 hover:shadow-(--glass) hover:border-[#F5C2DC]/30;
 }
 
 .text-balance {

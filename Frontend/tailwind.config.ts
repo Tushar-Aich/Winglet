@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 import tailwindAnimate from 'tailwindcss-animate'
 
@@ -70,8 +69,30 @@ export default {
 					dark: '#1A0E15',
 					light: '#FFFFFF',
 					gray: '#8E9196',
-					'light-gray': '#F8F9FA'
-				}
+					'light-gray': '#F8F9FA',
+					// Add these semantic color aliases for easier access
+					primary: '#F5C2DC',
+					secondary: '#E597BE',
+					accent: '#FCE4EF',
+					muted: '#8E9196',
+					background: '#FFFFFF',
+					foreground: '#1A0E15',
+					border: '#FCE4EF',
+					// Add opacity variants
+					'pink-50': 'rgba(245, 194, 220, 0.5)',
+					'darkpink-50': 'rgba(229, 151, 190, 0.5)',
+					'lightpink-50': 'rgba(252, 228, 239, 0.5)'
+				},
+				wingBlue: '#1DA1F2',
+				horizonPurple: '#8A3FFC',
+				soaringCoral: '#FF6B6B',
+				deepSlate: '#2C2FF3',
+				cloudWhite: '#F7F9FC',
+				aviaryTeal: '#17C3B2',
+				lavenderMist: '#C2B2FF',
+				sunsetPeach: '#FFB199',
+				featherGray: '#D1D3D8',
+				driftwoodBrown: '#A67C52',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
