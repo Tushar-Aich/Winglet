@@ -1,28 +1,26 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './index.css'
 import { ThemeProvider } from 'next-themes'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { Home, FAQ, Features, Testimonials } from "./pages/index.ts"
+import './index.css'
 import App from './App.tsx'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import SignIn from './pages/Sign-in.tsx'
 
-const route = createBrowserRouter([
+const routes = createBrowserRouter([
   {
-    path: "/",
+    path: "/app",
     element: <App />,
     children: [
-      { path: "", element: <Home />},
-      { path: "faq", element: <FAQ />},
-      { path: "features", element: <Features />},
-      { path: "testimonials", element: <Testimonials />},
+
     ]
-  }
+  },
+  { path: "/", element: <SignIn /> }
 ])
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ThemeProvider attribute="class" defaultTheme='system' enableSystem >
-      <RouterProvider router={route} />
+    <ThemeProvider attribute="class" defaultTheme='system' enableSystem>
+      <RouterProvider router={routes} />
     </ThemeProvider>
   </StrictMode>,
 )

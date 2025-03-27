@@ -1,17 +1,10 @@
-import Footer from "./components/Footer"
-import NavBar from "./components/NavBar"
-import { Outlet } from "react-router-dom"
-
-
-const Page = () => {
+function App() {
 
   return (
     <>
-    <NavBar />
-    <Outlet />
-    <Footer />
+    <div>Hello World</div>
     </>
   )
 }
 
-export default Page
+export default App
