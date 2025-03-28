@@ -1,6 +1,8 @@
-import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form"
+import { useNavigate } from "react-router-dom"
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { emailSchema } from "@/schemas/EmailVerification.ts";
 import {
   Form,
   FormControl,
@@ -8,47 +10,41 @@ import {
   FormItem,
   FormLabel,
 } from "../components/ui/form.tsx";
-import { useForm } from "react-hook-form";
-import { Input } from "@/components/ui/input.tsx";
-import { Button } from "@/components/ui/button.tsx";
 import { useState } from "react";
+import { Button } from "@/components/ui/button.tsx";
 import { Loader2 } from "lucide-react";
-import { login } from "@/services/auth.ts";
-import { loginSchema } from "@/schemas/loginSchema.ts";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/store/store.ts";
-import { storeLogin } from "@/store/Auth/authSlice.ts";
+import { Input } from "@/components/ui/input.tsx";
 import { toast } from "sonner";
+import { sendEmail } from "@/services/auth.ts";
 
-const SignIn = () => {
-  const navigate = useNavigate();
-  const dispatch: AppDispatch = useDispatch();
-  const form = useForm<z.infer<typeof loginSchema>>({
-    resolver: zodResolver(loginSchema),
+
+const SendOTP = () => {
+  const navigate = useNavigate()
+  const form = useForm<z.infer<typeof emailSchema>>({
+    resolver: zodResolver(emailSchema),
     defaultValues: {
       email: "",
-      password: "",
     },
   });
   const [isSubmitting, setIsSubmitting] = useState<Boolean>(false);
 
-  const handleSubmit = async (data: z.infer<typeof loginSchema>) => {
-    setIsSubmitting(true);
+  const handleSubmit = async (data: z.infer<typeof emailSchema>) => {
+    setIsSubmitting(true)
     try {
-      const res = await login(data);
-      console.log(res);
-      toast("User logged in successfully", {
+      const res = await sendEmail(data)
+      console.log(res)
+      toast("Email sent successfully", {
         description: "Successful✅",
         action: {
           label: "X",
           onClick: () => console.log("dismiss"),
         },
       });
-      dispatch(storeLogin(res.data.data.user));
-      navigate("/app");
-      setIsSubmitting(false);
-    } catch (error: any) {
-      setIsSubmitting(false);
+      localStorage.setItem('email', data.email)
+      localStorage.setItem('emailSent', res.data.data.status)
+      navigate('/verify-otp')
+    } catch (error) {
+      setIsSubmitting(false)
       toast("Error occured while logging in user", {
         description: "Please try again",
         action: {
@@ -56,9 +52,9 @@ const SignIn = () => {
           onClick: () => console.log("dismiss"),
         },
       });
-      console.log(error);
+      console.error(error)
     }
-  };
+  }
 
   return (
     <div className="w-screen h-screen flex justify-center items-center">
@@ -76,17 +72,17 @@ const SignIn = () => {
             Open your wings, connect with world.
           </p>
           <p>
-            Don't have an account ?{" "}
+            Already have an account ?{" "}
             <span
               className="text-blue-300 hover:text-blue-600 underline cursor-pointer text-sm"
-              onClick={() => navigate("/send-otp")}
+              onClick={() => navigate("/")}
             >
-              Sign Up
+              Sign In
             </span>
           </p>
         </div>
         <div className="mt-8">
-          <Form {...form}>
+        <Form {...form}>
             <form
               onSubmit={form.handleSubmit(handleSubmit)}
               className="space-y-4"
@@ -103,28 +99,6 @@ const SignIn = () => {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="********"
-                        {...field}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <p
-                className="text-xs text-blue-300 hover:text-blue-600 underline cursor-pointer text-right"
-                onClick={() => navigate("/forgot-password-email")}
-              >
-                Forgot Password
-              </p>
               {isSubmitting ? (
                 <Button
                   type="submit"
@@ -147,7 +121,7 @@ const SignIn = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default SignIn;
+export default SendOTP

@@ -1,26 +1,49 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { ThemeProvider } from 'next-themes'
-import './index.css'
-import App from './App.tsx'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import SignIn from './pages/Sign-in.tsx'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { ThemeProvider } from "next-themes";
+import "./index.css";
+import App from "./App.tsx";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import SignIn from "./pages/Sign-in.tsx";
+import SendOTP from "./pages/SendOTP.tsx";
+import { Toaster as Sonner } from "./components/ui/sonner.tsx";
+import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
+import { persistor, store } from "./store/store.ts";
+import ForgotPasswordEmail from "./pages/ForgotPasswordEmail.tsx";
+import VerifyOTP from "./pages/VerifyOTP.tsx";
+import SignUp from "./pages/SignUp.tsx";
+import Protection1 from "./components/Protection1.tsx";
+import Protection2 from "./components/Protection2.tsx";
 
 const routes = createBrowserRouter([
   {
     path: "/app",
     element: <App />,
-    children: [
-
-    ]
+    children: [],
   },
-  { path: "/", element: <SignIn /> }
-])
+  { path: "/", element: <SignIn /> },
+  { path: "/send-otp", element: <SendOTP /> },
+  { path: "/forgot-password-email", element: <ForgotPasswordEmail /> },
+  {
+    element: <Protection1 />,
+    children: [{ path: "/verify-otp", element: <VerifyOTP /> }],
+  },
+  {
+    element: <Protection2 />,
+    children: [{ path: "/sign-up", element: <SignUp /> }],
+  },
+]);
 
-createRoot(document.getElementById('root')!).render(
+createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <ThemeProvider attribute="class" defaultTheme='system' enableSystem>
-      <RouterProvider router={routes} />
-    </ThemeProvider>
-  </StrictMode>,
-)
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <Sonner />
+          <RouterProvider router={routes} />
+        </ThemeProvider>
+      </PersistGate>
+    </Provider>
+  </StrictMode>
+);

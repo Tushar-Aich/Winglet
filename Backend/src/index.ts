@@ -9,7 +9,7 @@ const port = process.env.PORT || 3000;
 connectDB()
 .then(() => {
     app.listen(port, () => {
-        console.log(`Server is up and running`);
+        console.log(`Server is up and running at ${port}`);
     });
 })
 .catch((error) => {
