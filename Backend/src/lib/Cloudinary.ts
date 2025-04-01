@@ -18,8 +18,10 @@ const uploadOnCloudinary = async (localFilePath: string) => {
     //uploading on cloudinary
     const response = await cloudinary.uploader.upload(localFilePath, {
       resource_type: "auto",
+      timeout: 600000
     });
     fs.unlinkSync(localFilePath); // remove the locally stored file from the server as the upload was unsuccessful
+    console.log(response)
     return response;
   } catch (error) {
     console.log("Error in cloudinary upload in utilitues folder", error);

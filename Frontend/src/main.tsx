@@ -15,12 +15,15 @@ import VerifyOTP from "./pages/VerifyOTP.tsx";
 import SignUp from "./pages/SignUp.tsx";
 import Protection1 from "./components/Protection1.tsx";
 import Protection2 from "./components/Protection2.tsx";
+import Home from "./pages/Home.tsx";
 
 const routes = createBrowserRouter([
   {
-    path: "/app",
+    path: "/home",
     element: <App />,
-    children: [],
+    children: [
+      { path: "", element: <Home /> }
+    ],
   },
   { path: "/", element: <SignIn /> },
   { path: "/send-otp", element: <SendOTP /> },

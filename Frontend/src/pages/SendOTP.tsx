@@ -45,7 +45,7 @@ const SendOTP = () => {
       navigate('/verify-otp')
     } catch (error) {
       setIsSubmitting(false)
-      toast("Error occured while logging in user", {
+      toast("Error occured while Sending email to user❌", {
         description: "Please try again",
         action: {
           label: "X",

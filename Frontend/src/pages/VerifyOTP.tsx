@@ -35,7 +35,7 @@ const SendOTP = () => {
     try {
       const res = await verifyOtp(data, email)
       console.log(res)
-      toast("Email sent successfully", {
+      toast("Email verified successfully", {
         description: "Successful✅",
         action: {
           label: "X",
@@ -46,7 +46,7 @@ const SendOTP = () => {
       navigate('/sign-up')
     } catch (error) {
       setIsSubmitting(false)
-      toast("Error occured while logging in user", {
+      toast("Error occured while verifying email❌", {
         description: "Please try again",
         action: {
           label: "X",
