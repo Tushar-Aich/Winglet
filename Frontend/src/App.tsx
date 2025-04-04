@@ -5,40 +5,41 @@ import { useState } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
+import Container from "./components/Container";
 
 function App() {
   const links = [
     {
       label: "Home",
-      href: "/",
+      href: "/home",
       icon: (
         <Home className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
     {
       label: "Search",
-      href: "/search",
+      href: "/home/search",
       icon: (
         <Search className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
     {
       label: "Filet",
-      href: "/ai",
+      href: "/home/filet",
       icon: (
         <Bird className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
     {
       label: "Notification",
-      href: "/notification",
+      href: "/home/notification",
       icon: (
         <Bell className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
     {
       label: "Inbox",
-      href: "/inbox",
+      href: "/home/inbox",
       icon: (
         <Mail className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
@@ -84,7 +85,7 @@ function App() {
                 label: useSelector(
                   (state: RootState) => state.user.user?.userName as string
                 )!,
-                href: "/profile",
+                href: "/home/profile",
                 icon: (
                   <img
                     src={
@@ -100,7 +101,9 @@ function App() {
           </div>
         </SidebarBody>
       </Sidebar>
-      <Outlet />
+      <Container>
+        <Outlet />
+      </Container>
     </div>
     </>
   )

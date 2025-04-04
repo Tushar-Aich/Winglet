@@ -153,22 +153,19 @@ const login = AsyncHandler(async (req: Request, res: Response) => {
     "-password -refreshToken"
   );
 
-  // Set the security based on environment
-  const isProduction = process.env.NODE_ENV === "production";
-
   return res
     .status(200)
     .cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: "strict",
-      maxAge: 24 * 60 * 60 * 1000,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     })
     .cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 15 * 24 * 60 * 60 * 1000,
     })
     .json(
       new ApiResponse(

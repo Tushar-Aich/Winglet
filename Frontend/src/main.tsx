@@ -1,6 +1,8 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { ThemeProvider } from "next-themes";
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import "./index.css";
 import App from "./App.tsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
@@ -16,13 +18,15 @@ import SignUp from "./pages/SignUp.tsx";
 import Protection1 from "./components/Protection1.tsx";
 import Protection2 from "./components/Protection2.tsx";
 import Home from "./pages/Home.tsx";
+import Profile from './pages/Profile.tsx'
 
 const routes = createBrowserRouter([
   {
     path: "/home",
     element: <App />,
     children: [
-      { path: "", element: <Home /> }
+      { path: "", element: <Home /> },
+      { path: "/home/profile", element: <Profile /> },
     ],
   },
   { path: "/", element: <SignIn /> },
@@ -38,14 +42,19 @@ const routes = createBrowserRouter([
   },
 ]);
 
+const queryClient = new QueryClient();
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <Sonner />
-          <RouterProvider router={routes} />
-        </ThemeProvider>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider attribute="class" defaultTheme="dark">
+            <Sonner />
+            <RouterProvider router={routes} />
+          </ThemeProvider>
+          <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
       </PersistGate>
     </Provider>
   </StrictMode>

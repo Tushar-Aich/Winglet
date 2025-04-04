@@ -45,7 +45,7 @@ const SignIn = () => {
         },
       });
       dispatch(storeLogin(res.data.data.user));
-      navigate("/app");
+      navigate("/home");
       setIsSubmitting(false);
     } catch (error: any) {
       setIsSubmitting(false);

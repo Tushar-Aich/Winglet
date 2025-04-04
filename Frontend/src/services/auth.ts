@@ -5,12 +5,13 @@ import { SignUpSchema } from "@/schemas/signUpSchema";
 import axios from "axios";
 import { z } from "zod";
 
+
 export const login = async (data: z.infer<typeof loginSchema>) => {
   const { email, password } = data;
   const res = axios.post(
     `${import.meta.env.VITE_BACKEND_URL}/users/login`,
     { email, password },
-    { headers: { "Content-Type": "application/json" } }
+    { headers: { "Content-Type": "application/json" }, withCredentials: true }
   );
   return res;
 };
@@ -42,8 +43,6 @@ export const signUp = async (data: z.infer<typeof SignUpSchema>, email: string) 
   formData.append('avatar', avatar);
   formData.append('email', email);
 
-  console.log("formData : ", formData)
-
   const res = axios.post(
     `${import.meta.env.VITE_BACKEND_URL}/users/signUp`,
     formData,
@@ -51,3 +50,8 @@ export const signUp = async (data: z.infer<typeof SignUpSchema>, email: string) 
   );
   return res;
 };
+
+export const getUser = async () => {
+  const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/users/current-user`, { withCredentials: true })
+  return res.data?.data
+}
