@@ -1,28 +1,13 @@
-import { getUser } from "@/services/auth";
-import { IconBalloon } from "@tabler/icons-react";
-import { useQuery } from "@tanstack/react-query";
-import { Calendar } from "lucide-react";
 
 const Profile = () => {
-  const { data, error, isLoading } = useQuery({
-    queryKey: ["userData"],
-    queryFn: getUser,
-    staleTime: 5 * 60 * 1000,
-  });
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return (
-      <p>
-        Error :: {error.name}, {error.message}
-      </p>
-    );
-  
-    const formatDate = (createdAt: string) => {
-      const formattedDate = createdAt.split('T')[0]
-      console.log(formattedDate)
-      return formattedDate
-    }
   return (
-    <div className="w-full h-full">
+    <div>Hello</div>
+  );
+};
+
+export default Profile;
+
+/* <div className="w-full h-full">
       <div className="relative w-full">
         {data.coverImage ? (
           <img
@@ -69,8 +54,4 @@ const Profile = () => {
         |
         <p className="mx-2 font-bold text-lg">{data.following.length} <span className="text-muted-foreground">Following</span></p>
       </div>
-    </div>
-  );
-};
-
-export default Profile;
+    </div> */

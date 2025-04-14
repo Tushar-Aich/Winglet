@@ -3,9 +3,7 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface ITweet extends Document {
   content: String;
   owner: mongoose.Types.ObjectId;
-  likes: mongoose.Types.ObjectId[];
-  replies: mongoose.Types.ObjectId[];
-  media: mongoose.Types.ObjectId[];
+  media: String;
   mentions: mongoose.Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
@@ -23,24 +21,9 @@ const TweetSchema = new Schema<ITweet>(
       ref: "User",
       required: true,
     },
-    likes: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
-    replies: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Tweet",
-      },
-    ],
-    media: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "edia",
-      },
-    ],
+    media: {
+      type: String
+    },
     mentions: [
       {
         type: Schema.Types.ObjectId,

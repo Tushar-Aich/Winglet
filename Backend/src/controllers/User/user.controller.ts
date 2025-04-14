@@ -12,6 +12,7 @@ import { uploadOnCloudinary, deleteFile } from "../../lib/Cloudinary.js";
 import { generateAccessToken, generateRefreshToken } from "../../lib/jwt.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import mongoose from "mongoose";
 
 const sendMail = AsyncHandler(async (req: Request, res: Response) => {
   const { email } = req.body;
@@ -301,7 +302,8 @@ const logout = AsyncHandler(async (req: Request, res: Response) => {
     .json(new ApiResponse(200, {}, "User logged out successfully"));
 });
 
-const forgotPasswordEmail = AsyncHandler(async (req: Request, res: Response) => {
+const forgotPasswordEmail = AsyncHandler(
+  async (req: Request, res: Response) => {
     const { email } = req.body;
     if (!email) throw new ApiError(400, "Email is required");
 
@@ -328,7 +330,8 @@ const forgotPasswordEmail = AsyncHandler(async (req: Request, res: Response) => 
   }
 );
 
-const forgotPasswordOtpVerification = AsyncHandler(async (req: Request, res: Response) => {
+const forgotPasswordOtpVerification = AsyncHandler(
+  async (req: Request, res: Response) => {
     const { email, otp } = req.body;
     if (!email) throw new ApiError(400, "Email is needed");
     if (!otp) throw new ApiError(400, "OTP is needed");
@@ -548,6 +551,169 @@ const deleteAcc = AsyncHandler(async (req: Request, res: Response) => {
     .json(new ApiResponse(200, {}, "User deleted successfully"));
 });
 
+const userDetails = AsyncHandler(async (req: Request, res: Response) => {
+  const { userId } = req.params;
+  const user = await UserModel.findById(userId);
+  if (!user) throw new ApiError(404, "User not found");
+
+  const userDetails = await UserModel.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(user._id),
+      },
+    },
+    {
+      $lookup: {
+        from: "tweets",
+        localField: "_id",
+        foreignField: "owner",
+        as: "userTweets",
+        pipeline: [
+          {
+            $lookup: {
+              from: 'likes',
+              localField: '_id',
+              foreignField: 'tweet',
+              as: 'likesOnTweet'
+            }
+          },
+          {
+            $lookup: {
+              from: 'comments',
+              localField: '_id',
+              foreignField: 'tweet',
+              as: 'commentsOnTweet'
+            }
+          },
+          {
+            $addFields: {
+              likes: {
+                $size: '$likesOnTweet'
+              },
+              comments: {
+                $size: "$commentsOnTweet"
+              }
+            }
+          }
+        ]
+      },
+    },
+    {
+      $lookup: {
+        from: "comments",
+        localField: "_id",
+        foreignField: "author",
+        as: "userComments",
+        pipeline: [
+          {
+            $lookup: {
+              from: 'tweets',
+              localField: 'tweet',
+              foreignField: '_id',
+              as: 'TweetComments'
+            }
+          },
+          {
+            $lookup: {
+              from: 'likes',
+              localField: '_id',
+              foreignField: 'comment',
+              as: 'likeOnComment'
+            }
+          },
+          {
+            $addFields: {
+              comments: '$TweetComments',
+              likes: {
+                $size: '$likeOnComment'
+              }
+            }
+          }
+        ]
+      },
+    },
+    {
+      $lookup: {
+        from: "likes",
+        localField: "_id",
+        foreignField: "user",
+        as: "userLikes",
+        pipeline: [
+          {
+            $lookup: {
+              from: 'tweets',
+              localField: 'tweet',
+              foreignField: '_id',
+              as: 'likedTweets'
+            }
+          },
+          {
+            $addFields: {
+              tweets: '$likedTweets'
+            }
+          }
+        ]
+      },
+    },
+    {
+      $lookup: {
+        from: 'follows',
+        localField: '_id',
+        foreignField: 'follower',
+        as: 'followers'
+      }
+    },
+    {
+      $lookup: {
+        from: 'follows',
+        localField: '_id',
+        foreignField: 'following',
+        as: 'followings'
+      }
+    },
+    {
+      $addFields: {
+        likes: "$userLikes",
+        tweets: "$userTweets",
+        comments: "$userComments",
+        followersCount: {
+          $size: '$followers'
+        },
+        followingCount: {
+          $size: '$following'
+        }
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        userName: 1,
+        email: 1,
+        OGName: 1,
+        bio: 1,
+        avatar: 1,
+        coverImage: 1,
+        birthDate: 1,
+        isVerified: 1,
+        isPrivate: 1,
+        lastActive: 1,
+        likes: 1,
+        tweets: 1,
+        comments: 1,
+        followersCount: 1,
+        followingCount: 1
+      },
+    },
+  ]).sort("-1");
+
+  if (!userDetails) throw new ApiError(400, "Something went wrong");
+  res
+    .status(200)
+    .json(
+      new ApiResponse(200, userDetails, "User details fetched successfully")
+    );
+});
+
 export {
   sendMail,
   verifyOTP,
@@ -564,4 +730,5 @@ export {
   addBio,
   addBirthDate,
   deleteAcc,
+  userDetails
 };

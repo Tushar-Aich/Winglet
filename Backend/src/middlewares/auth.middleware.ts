@@ -6,7 +6,6 @@ import { Request, NextFunction, Response } from "express";
 
 export const verifyJWT = AsyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    console.log(req.cookies)
     const token =
       req.cookies?.accessToken ||
       req.header("Authorization")?.replace("bearer ", "");

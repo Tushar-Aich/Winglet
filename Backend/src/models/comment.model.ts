@@ -5,7 +5,6 @@ export interface IComment extends Document {
     content: String;
     author: mongoose.Types.ObjectId;
     tweet: mongoose.Types.ObjectId;
-    likes: mongoose.Types.ObjectId[];
     createdAt: Date;
     updatedAt: Date;
 }
@@ -26,10 +25,6 @@ const CommentSchema = new Schema<IComment>(
         type: Schema.Types.ObjectId,
         ref: 'Tweet'
     },
-    likes: [{
-        type: Schema.Types.ObjectId,
-        ref: 'User'
-    }],
   },
   {
     timestamps: true,

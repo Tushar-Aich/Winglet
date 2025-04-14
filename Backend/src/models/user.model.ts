@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from "mongoose";
 import bcrypt from "bcrypt";
 
 export interface IUser extends Document {
-  _id: String;
+  _id: mongoose.Types.ObjectId;
   userName: String;
   email: String;
   password: String;
@@ -11,16 +11,9 @@ export interface IUser extends Document {
   avatar: String;
   coverImage: String;
   birthDate?: String;
-  followers: mongoose.Types.ObjectId[];
-  following: mongoose.Types.ObjectId[];
-  posts: mongoose.Types.ObjectId[];
-  likedPosts: mongoose.Types.ObjectId[];
-  bookmarks: mongoose.Types.ObjectId[];
-  notifications: mongoose.Types.ObjectId[];
   isVerified: Boolean;
   isPrivate: Boolean;
   lastActive: Date;
-  accountType: "Free" | "Premium";
   refreshToken: String;
   createdAt: Date;
   updatedAt: Date;
@@ -73,42 +66,6 @@ const UserSchema = new Schema<IUser>(
     birthDate: {
       type: String,
     },
-    followers: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
-    following: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
-    posts: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Post",
-      },
-    ],
-    likedPosts: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Post",
-      },
-    ],
-    bookmarks: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Post",
-      },
-    ],
-    notifications: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Notification",
-      },
-    ],
     isVerified: {
       type: Boolean,
       default: false,
@@ -120,11 +77,6 @@ const UserSchema = new Schema<IUser>(
     lastActive: {
       type: Date,
       default: Date.now,
-    },
-    accountType: {
-      type: String,
-      enum: ["Free", "Premium"],
-      default: "Free",
     },
     refreshToken: {
       type: String,

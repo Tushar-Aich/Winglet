@@ -9,12 +9,6 @@ interface User {
     avatar: String;
     coverImage: String;
     birthDate?: String;
-    followers: [];
-    following: [];
-    posts: [];
-    likedPosts: [];
-    bookmarks: [];
-    notifications: [];
     isVerified: Boolean;
     isPrivate: Boolean;
     lastActive: Date;
