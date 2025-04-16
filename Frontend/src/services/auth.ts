@@ -2,9 +2,7 @@ import { emailSchema } from "@/schemas/EmailVerification";
 import { loginSchema } from "@/schemas/loginSchema.ts";
 import { otpSchema } from "@/schemas/OTPSchema";
 import { SignUpSchema } from "@/schemas/signUpSchema";
-import { RootState } from "@/store/store";
 import axios from "axios";
-import { useSelector } from "react-redux";
 import { z } from "zod";
 
 
@@ -53,8 +51,7 @@ export const signUp = async (data: z.infer<typeof SignUpSchema>, email: string) 
   return res;
 };
 
-export const getUser = async () => {
-  const user = useSelector((state: RootState) => state.user.user)
-  const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/users/:${user?._id}`, { withCredentials: true })
-  return res.data?.data
+export const getUser = async (userId: string) => {
+  const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/users/${userId}`, { withCredentials: true })
+  return res.data
 }

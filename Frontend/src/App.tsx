@@ -8,6 +8,7 @@ import { RootState } from "@/store/store";
 import Container from "./components/Container";
 
 function App() {
+  const user = useSelector((state: RootState) => state.user.user)
   const links = [
     {
       label: "Home",
@@ -85,7 +86,7 @@ function App() {
                 label: useSelector(
                   (state: RootState) => state.user.user?.userName as string
                 )!,
-                href: "/home/profile",
+                href: `/home/profile/${user?._id}`,
                 icon: (
                   <img
                     src={

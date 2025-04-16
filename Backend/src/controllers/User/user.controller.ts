@@ -556,6 +556,9 @@ const userDetails = AsyncHandler(async (req: Request, res: Response) => {
   const user = await UserModel.findById(userId);
   if (!user) throw new ApiError(404, "User not found");
 
+  const cachedDetails = await redis.get(`user:${userId}`)
+  if(cachedDetails) return res.status(200).json(new ApiResponse(200, JSON.parse(cachedDetails), "User details fetched successfully"));
+
   const userDetails = await UserModel.aggregate([
     {
       $match: {
@@ -680,7 +683,18 @@ const userDetails = AsyncHandler(async (req: Request, res: Response) => {
           $size: '$followers'
         },
         followingCount: {
-          $size: '$following'
+          $size: '$followings'
+        },
+        followers: "$followers",
+        followings: "$followings",
+        isFollowed: {
+          $cond: {
+            if: {
+              $in: [(req.user as IUser)?._id, "$followers.following"]
+            },
+            then: true,
+            else: false
+          }
         }
       },
     },
@@ -697,14 +711,21 @@ const userDetails = AsyncHandler(async (req: Request, res: Response) => {
         isVerified: 1,
         isPrivate: 1,
         lastActive: 1,
+        createdAt: 1,
+        updatedAt: 1,
         likes: 1,
         tweets: 1,
         comments: 1,
         followersCount: 1,
-        followingCount: 1
+        followingCount: 1,
+        followers: 1,
+        followings: 1,
+        isFollowed: 1
       },
     },
   ]).sort("-1");
+
+  await redis.setex(`user:${userId}`, 180, JSON.stringify(userDetails))
 
   if (!userDetails) throw new ApiError(400, "Something went wrong");
   res

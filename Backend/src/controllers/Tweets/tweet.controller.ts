@@ -102,59 +102,6 @@ const getAllTweets = AsyncHandler(async(req:Request, res: Response) => {
     )
 })
 
-const getMyTweets = AsyncHandler(async(req:Request, res:Response) => {
-    const userId = (req.user as IUser)?._id
-    const user = await UserModel.findById(userId)
-    if(!user) throw new ApiError(404, "User not found");
-
-    const Tweets = await TweetModel.aggregate([
-        {
-            $match: {
-                owner: new mongoose.Types.ObjectId(userId)
-            }
-        },
-        {
-            $lookup: {
-                from: "users",
-                localField: "owner",
-                foreignField: "_id",
-                as: "User",
-                pipeline: [
-                    {
-                        $project: {
-                            avatar: 1,
-                            userName: 1
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            $addFields: {
-                User: {
-                    $first: "$User"
-                }
-            }
-        },
-        {
-            $sort: {
-                createdAt: -1
-            }
-        },
-        {
-            $project: {
-                content: 1,
-                User: 1,
-                mentions: 1,
-                createdAt: 1
-            }
-        }
-    ])
-    if(!Tweets) throw new ApiError(400, "Something went wrong while fetching all tweets");
-
-    res.status(200).json(new ApiResponse(200, Tweets, "User Tweets fetched successfully"));
-})
-
 const getUserTweets = AsyncHandler(async(req:Request, res:Response) => {
     const {userId} = req.params
     const user = await UserModel.findById(userId)
@@ -183,10 +130,51 @@ const getUserTweets = AsyncHandler(async(req:Request, res:Response) => {
             }
         },
         {
+            $lookup: {
+                from: "likes",
+                localField: "_id",
+                foreignField: "tweet",
+                as: "LikesOnTweet"
+            }
+        },
+        {
+            $lookup: {
+                from: "comments",
+                localField: "_id",
+                foreignField: "tweet",
+                as: "CommentOnTweet",
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "author",
+                            foreignField: "_id",
+                            as: "authors",
+                            pipeline: [
+                                {
+                                    $project: {
+                                        avatar: 1,
+                                        userName: 1
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
             $addFields: {
                 User: {
                     $first: "$User"
-                }
+                },
+                likes: {
+                    $size: "$LikesOnTweet"
+                },
+                commentCount: {
+                    $size: "$CommentOnTweet"
+                },
+                comments: "$CommentOnTweet"
             }
         },
         {
@@ -199,7 +187,11 @@ const getUserTweets = AsyncHandler(async(req:Request, res:Response) => {
                 content: 1,
                 User: 1,
                 mentions: 1,
-                createdAt: 1
+                createdAt: 1,
+                likes: 1,
+                commentCount: 1,
+                comments: 1,
+                media: 1
             }
         }
     ])
@@ -227,4 +219,4 @@ const deleteTweet = AsyncHandler(async(req: Request, res: Response) => {
 
 })
 
-export {createTweet, getMyTweets, deleteTweet, getUserTweets, getAllTweets}
+export {createTweet, deleteTweet, getUserTweets, getAllTweets}
