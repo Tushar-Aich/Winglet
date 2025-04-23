@@ -20,6 +20,7 @@ import Protection2 from "./components/Protection2.tsx";
 import Home from "./pages/Home.tsx";
 import Profile from './pages/Profile.tsx'
 import UserChats from "./pages/UserChats.tsx";
+import Tweets from "./pages/Tweets.tsx";
 
 const routes = createBrowserRouter([
   {
@@ -30,6 +31,7 @@ const routes = createBrowserRouter([
       { path: "/home/profile/:userId", element: <Profile />, children: [
         { path: "/home/profile/:userId/tweets", element: <UserChats /> }
       ] },
+      { path: "/home/tweets/:tweetId", element: <Tweets /> }
     ],
   },
   { path: "/", element: <SignIn /> },

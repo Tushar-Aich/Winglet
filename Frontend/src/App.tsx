@@ -6,6 +6,7 @@ import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import Container from "./components/Container";
+import Logo from "../public/Transparent-logo.jpg"
 
 function App() {
   const user = useSelector((state: RootState) => state.user.user)
@@ -61,7 +62,7 @@ function App() {
             {open ? (
               <div className="flex gap-2 items-center">
                 <img
-                  src="./Transparent-logo.jpg"
+                  src={Logo}
                   alt=""
                   className="h-5 w-5 rounded-full"
                 />
@@ -69,7 +70,7 @@ function App() {
               </div>
             ) : (
               <img
-                src="./Transparent-logo.jpg"
+                src={Logo}
                 alt=""
                 className="h-5 w-5 rounded-full"
               />

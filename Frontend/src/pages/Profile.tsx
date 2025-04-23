@@ -80,7 +80,7 @@ const Profile = () => {
           <img
             src={user?.avatar}
             alt=""
-            className="h-20 w-20 rounded-full border-4 border-white dark:border-neutral-600"
+            className="h-20 w-20 rounded-full border-4 border-white dark:border-black"
           />
         </div>
       </div>

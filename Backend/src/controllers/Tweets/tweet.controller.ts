@@ -174,7 +174,16 @@ const getUserTweets = AsyncHandler(async(req:Request, res:Response) => {
                 commentCount: {
                     $size: "$CommentOnTweet"
                 },
-                comments: "$CommentOnTweet"
+                comments: "$CommentOnTweet",
+                isLiked: {
+                    $cond: {
+                        if: {
+                            $in: [(req.user as IUser)?._id, "$LikesOnTweet.user"]
+                        },
+                        then: true,
+                        else: false
+                    }
+                }
             }
         },
         {
@@ -191,7 +200,8 @@ const getUserTweets = AsyncHandler(async(req:Request, res:Response) => {
                 likes: 1,
                 commentCount: 1,
                 comments: 1,
-                media: 1
+                media: 1,
+                isLiked: 1
             }
         }
     ])
@@ -219,4 +229,110 @@ const deleteTweet = AsyncHandler(async(req: Request, res: Response) => {
 
 })
 
-export {createTweet, deleteTweet, getUserTweets, getAllTweets}
+const getTweetById = AsyncHandler(async (req: Request, res: Response) => {
+    const { tweetId } = req.params
+    if(!tweetId) throw new ApiError(404, "TweetId not found");
+
+    const tweet = await TweetModel.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(tweetId)
+            }
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "owner",
+                foreignField: "_id",
+                as: "User",
+                pipeline: [
+                    {
+                        $project: {
+                            avatar: 1,
+                            userName: 1
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $lookup: {
+                from: "likes",
+                localField: "_id",
+                foreignField: "tweet",
+                as: "LikesOnTweet"
+            }
+        },
+        {
+            $lookup: {
+                from: "comments",
+                localField: "_id",
+                foreignField: "tweet",
+                as: "CommentOnTweet",
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "author",
+                            foreignField: "_id",
+                            as: "authors",
+                            pipeline: [
+                                {
+                                    $project: {
+                                        avatar: 1,
+                                        userName: 1
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $addFields: {
+                User: {
+                    $first: "$User"
+                },
+                likes: {
+                    $size: "$LikesOnTweet"
+                },
+                commentCount: {
+                    $size: "$CommentOnTweet"
+                },
+                comments: "$CommentOnTweet",
+                isLiked: {
+                    $cond: {
+                        if: {
+                            $in: [(req.user as IUser)?._id, "$LikesOnTweet.user"]
+                        },
+                        then: true,
+                        else: false
+                    }
+                }
+            }
+        },
+        {
+            $sort: {
+                createdAt: -1
+            }
+        },
+        {
+            $project: {
+                content: 1,
+                User: 1,
+                mentions: 1,
+                createdAt: 1,
+                likes: 1,
+                commentCount: 1,
+                comments: 1,
+                media: 1,
+                isLiked: 1
+            }
+        }
+    ])
+    if(!tweet) throw new ApiError(400, "Something went wrong");
+    res.status(200).json(new ApiResponse(200, tweet, "Tweet Fetched Successfully"))
+})
+
+export {createTweet, deleteTweet, getUserTweets, getAllTweets, getTweetById}
