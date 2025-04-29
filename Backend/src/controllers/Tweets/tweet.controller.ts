@@ -220,7 +220,7 @@ const deleteTweet = AsyncHandler(async(req: Request, res: Response) => {
     const tweet = await TweetModel.findById(tweetId);
     if(!tweet) throw new ApiError(404, "Tweet not found");
 
-    if(tweet.owner !== user._id) throw new ApiError(400, "Only owner can delete the tweet");
+    if(tweet.owner.toString() !== user._id.toString()) throw new ApiError(400, "Only owner can delete the tweet");
 
     const deleteTweet = await TweetModel.findByIdAndDelete(tweetId)
     if(!deleteTweet) throw new ApiError(400, "Tweet deletion unsuccesful");
@@ -284,6 +284,14 @@ const getTweetById = AsyncHandler(async (req: Request, res: Response) => {
                                     }
                                 }
                             ]
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "likes",
+                            localField: "_id",
+                            foreignField: "comment",
+                            as: "likesOnComment"
                         }
                     }
                 ]

@@ -158,14 +158,17 @@ export const MobileSidebar = ({
 export const SidebarLink = ({
   link,
   className,
+  name,
   ...props
 }: {
   link: Links;
   className?: string;
+  name: string;
 }) => {
   const { open, animate } = useSidebar();
   return (
     <Link
+      aria-label={`go to ${name} page`}
       to={link.href}
       className={cn(
         `flex items-center justify-start gap-2  group/sidebar py-2`,

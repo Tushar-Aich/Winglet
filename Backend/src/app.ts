@@ -41,11 +41,13 @@ import UserRouter from './routes/user.routes.js'
 import FollowRouter from './routes/follow.routes.js'
 import TweetRouter from "./routes/tweet.routes.js"
 import LikeRouter from "./routes/like.routes.js"
+import CommentRouter from "./routes/comment.routes.js"
 
 //router declaration
 app.use("/api/v1/users", UserRouter)
 app.use("/api/v1/followers", FollowRouter)
 app.use("/api/v1/tweets", TweetRouter)
 app.use("/api/v1/likes", LikeRouter)
+app.use("/api/v1/comments", CommentRouter)
 
 export default app;

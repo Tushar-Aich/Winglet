@@ -19,6 +19,7 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store/store.ts";
 import { storeLogin } from "@/store/Auth/authSlice.ts";
 import { toast } from "sonner";
+import Logo from "../Assets/Transparent-logo.jpg"
 
 const SignIn = () => {
   const navigate = useNavigate();
@@ -66,7 +67,7 @@ const SignIn = () => {
         <div className="space-y-0.5 text-center">
           <div className="flex justify-center items-center space-x-2">
             <img
-              src="./Transparent-logo.jpg"
+              src={Logo}
               alt="Logo"
               className="h-8 w-8 rounded-full md:h-12 md:w-12"
             />

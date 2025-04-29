@@ -1,26 +1,28 @@
-import { StrictMode } from "react";
+import React, { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { ThemeProvider } from "next-themes";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import "./index.css";
-import App from "./App.tsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import SignIn from "./pages/Sign-in.tsx";
-import SendOTP from "./pages/SendOTP.tsx";
 import { Toaster as Sonner } from "./components/ui/sonner.tsx";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { persistor, store } from "./store/store.ts";
-import ForgotPasswordEmail from "./pages/ForgotPasswordEmail.tsx";
-import VerifyOTP from "./pages/VerifyOTP.tsx";
-import SignUp from "./pages/SignUp.tsx";
-import Protection1 from "./components/Protection1.tsx";
-import Protection2 from "./components/Protection2.tsx";
-import Home from "./pages/Home.tsx";
-import Profile from './pages/Profile.tsx'
-import UserChats from "./pages/UserChats.tsx";
-import Tweets from "./pages/Tweets.tsx";
+
+
+const App = React.lazy(() => import("./App.tsx"))
+const SignIn = React.lazy(() => import("./pages/Sign-in.tsx"))
+const SendOTP = React.lazy(() => import("./pages/SendOTP.tsx"))
+const ForgotPasswordEmail = React.lazy(() => import("./pages/ForgotPasswordEmail.tsx"))
+const SignUp = React.lazy(() => import("./pages/SignUp.tsx"))
+const Protection1 = React.lazy(() => import("./components/Protection1.tsx"))
+const Protection2 = React.lazy(() => import("./components/Protection2.tsx"))
+const Home = React.lazy(() => import("./pages/Home.tsx"))
+const Profile = React.lazy(() => import("./pages/Profile.tsx"))
+const UserChats = React.lazy(() => import("./pages/UserChats.tsx"))
+const Tweets = React.lazy(() => import("./pages/Tweets.tsx"))
+const VerifyOTP = React.lazy(() => import("./pages/VerifyOTP.tsx"))
 
 const routes = createBrowserRouter([
   {
@@ -55,8 +57,10 @@ createRoot(document.getElementById("root")!).render(
       <PersistGate loading={null} persistor={persistor}>
         <QueryClientProvider client={queryClient}>
           <ThemeProvider attribute="class" defaultTheme="dark">
-            <Sonner />
-            <RouterProvider router={routes} />
+            <Suspense fallback={<div>Loading...</div>}>
+              <Sonner />
+              <RouterProvider router={routes} />
+            </Suspense>
           </ThemeProvider>
           <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>

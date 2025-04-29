@@ -1,15 +1,22 @@
-import { Outlet } from "react-router-dom"
+import { Link, Outlet } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Bell, Home, Mail, Search, Bird } from "lucide-react";
+import { Bell, Home, Mail, Search, Bird, User2Icon } from "lucide-react";
 import { useState } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import Container from "./components/Container";
-import Logo from "../public/Transparent-logo.jpg"
+import Logo from "./Assets/Transparent-logo.jpg";
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  navigationMenuTriggerStyle,
+} from "./components/ui/navigation-menu";
 
 function App() {
-  const user = useSelector((state: RootState) => state.user.user)
+  const user = useSelector((state: RootState) => state.user.user);
   const links = [
     {
       label: "Home",
@@ -47,68 +54,119 @@ function App() {
       ),
     },
   ];
+  
+  const Mobilelinks = [
+    {
+      label: "Home",
+      href: "/home",
+      icon: (
+        <Home className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+      ),
+    },
+    {
+      label: "Search",
+      href: "/home/search",
+      icon: (
+        <Search className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+      ),
+    },
+    {
+      label: "Notification",
+      href: "/home/notification",
+      icon: (
+        <Bell className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+      ),
+    },
+    {
+      label: "Inbox",
+      href: "/home/inbox",
+      icon: (
+        <Mail className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+      ),
+    },
+  ];
   const [open, setOpen] = useState(false);
   return (
     <>
-    <div
-      className={cn(
-        "flex w-full flex-1 flex-row overflow-hidden border border-neutral-200 bg-gray-100 md:flex-row dark:border-neutral-700 dark:bg-neutral-800 absolute left-0 top-0 ",
-        "h-screen"
-      )}
-    >
-      <Sidebar open={open} setOpen={setOpen}>
-        <SidebarBody className="justify-between gap-10 mr-0.5">
-          <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto">
-            {open ? (
-              <div className="flex gap-2 items-center">
-                <img
-                  src={Logo}
-                  alt=""
-                  className="h-5 w-5 rounded-full"
-                />
-                <h1 className="font-bold text-lg">Winglet</h1>
+      <div
+        className={cn(
+          "w-full flex-1 flex-row overflow-hidden border border-neutral-200 hidden md:flex bg-gray-100 md:flex-row dark:border-neutral-700 dark:bg-neutral-800 absolute left-0 top-0 ",
+          "h-screen"
+        )}
+      >
+        <Sidebar open={open} setOpen={setOpen}>
+          <SidebarBody className="justify-between gap-10 mr-0.5">
+            <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto">
+              {open ? (
+                <div className="flex gap-2 items-center">
+                  <img src={Logo} alt="" className="h-5 w-5 rounded-full" />
+                  <h1 className="font-bold text-lg">Winglet</h1>
+                </div>
+              ) : (
+                <img src={Logo} alt="" className="h-5 w-5 rounded-full" />
+              )}
+              <div className="mt-12 flex flex-col gap-2">
+                {links.map((link, idx) => (
+                  <SidebarLink key={idx} link={link} name={link.label}/>
+                ))}
               </div>
-            ) : (
-              <img
-                src={Logo}
-                alt=""
-                className="h-5 w-5 rounded-full"
-              />
-            )}
-            <div className="mt-12 flex flex-col gap-2">
-              {links.map((link, idx) => (
-                <SidebarLink key={idx} link={link} />
-              ))}
             </div>
-          </div>
-          <div>
-            <SidebarLink
-              link={{
-                label: useSelector(
-                  (state: RootState) => state.user.user?.userName as string
-                )!,
-                href: `/home/profile/${user?._id}`,
-                icon: (
-                  <img
-                    src={
-                      useSelector(
-                        (state: RootState) => state.user.user?.avatar as string
-                      )!
-                    }
-                    className="h-5 w-5 shrink-0 rounded-full"
-                  />
-                ),
-              }}
-            />
-          </div>
-        </SidebarBody>
-      </Sidebar>
-      <Container>
-        <Outlet />
-      </Container>
-    </div>
+            <div>
+              <SidebarLink
+                link={{
+                  label: useSelector(
+                    (state: RootState) => state.user.user?.userName as string
+                  )!,
+                  href: `/home/profile/${user?._id}`,
+                  icon: (
+                    <User2Icon className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+                  ),
+                }}
+                name="profile"
+              />
+            </div>
+          </SidebarBody>
+        </Sidebar>
+        <Container>
+          <Outlet />
+        </Container>
+      </div>
+      <div className="flex flex-row md:hidden h-screen w-full z-20">
+        <div className="absolute bottom-2 left-[50%] -translate-x-[50%]">
+          <NavigationMenu className="bg-transparent inline-block z-20 px-0 sm:px-3 rounded-full border-1 border-black dark:border-gray-300 backdrop-blur-sm">
+            <NavigationMenuList>
+              <NavigationMenuItem className="bg-transparent">
+                <NavigationMenuLink className={`${navigationMenuTriggerStyle()} bg-transparent overflow-hidden rounded-l-full hover:bg-transparent`}>
+                  <img src={Logo} alt="" className="h-5 w-5 rounded-full" />
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              {Mobilelinks.map((link, idx) => (
+                <NavigationMenuItem key={idx}>
+                  <Link to={link.href} aria-label={`go to ${link.label} page`}>
+                    <NavigationMenuLink
+                      className={`${navigationMenuTriggerStyle()} bg-transparent hover:bg-transparent`}
+                    >
+                      {link.icon}
+                    </NavigationMenuLink>
+                  </Link>
+                </NavigationMenuItem>
+              ))}
+              <NavigationMenuItem>
+                <Link to={`/home/profile/${user?._id}`} aria-label="go to profile page">
+                  <NavigationMenuLink className={`${navigationMenuTriggerStyle()}  bg-transparent overflow-hidden rounded-r-full hover:bg-transparent`}>
+                    <User2Icon className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
+        </div>
+        <Container>
+          <Outlet />
+        </Container>
+      </div>
     </>
-  )
+  );
 }
 
-export default App
+export default App;

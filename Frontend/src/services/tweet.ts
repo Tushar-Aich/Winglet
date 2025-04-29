@@ -21,4 +21,34 @@ const getTweetById = async (tweetId: string) => {
     return res
 }
 
-export {getUserTweets, likeTweet, dislikeTweet, getTweetById}
+const postComment = async (tweetId: string | undefined, content: string) => {
+    const res = axios.post(`${import.meta.env.VITE_BACKEND_URL}/comments/post?tweetId=${tweetId}`, {content}, {withCredentials: true})
+    return res
+}
+
+const allCommentsOnAPost = async (tweetId: string | undefined) => {
+    const res = axios.get(`${import.meta.env.VITE_BACKEND_URL}/comments/get?tweetId=${tweetId}`, {withCredentials: true})
+    return res
+}
+
+const likeComment = async (commentId: string | undefined) => {
+    const res = axios.post(`${import.meta.env.VITE_BACKEND_URL}/likes/comment/${commentId}`, {}, {withCredentials: true})
+    return res
+}
+
+const dislikeComment = async (commentId: string | undefined) => {
+    const res = axios.post(`${import.meta.env.VITE_BACKEND_URL}/likes/comment/dislike/${commentId}`, {}, {withCredentials: true})
+    return res
+}
+
+const deleteComment = async(commentId: string) => {
+    const res = axios.delete(`${import.meta.env.VITE_BACKEND_URL}/comments/delete?commentId=${commentId}`, {withCredentials: true})
+    return res
+}
+
+const deleteTweet = async (tweetId: string | undefined) => {
+    const res = axios.delete(`${import.meta.env.VITE_BACKEND_URL}/tweets/delete/${tweetId}`, {withCredentials: true})
+    return res
+}
+
+export {getUserTweets, likeTweet, dislikeTweet, getTweetById, postComment, allCommentsOnAPost, likeComment, dislikeComment, deleteComment, deleteTweet}

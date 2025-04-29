@@ -8,7 +8,7 @@ import { ApiResponse } from "../../utils/ApiResponse";
 import mongoose from "mongoose";
 
 const comment = AsyncHandler(async (req: Request, res: Response) => {
-  const { tweetId } = req.params;
+  const { tweetId } = req.query;
   const { content } = req.body;
 
   if (!content) throw new ApiError(400, "Content is required");
@@ -42,7 +42,7 @@ const comment = AsyncHandler(async (req: Request, res: Response) => {
 });
 
 const allCommentsOnAPost = AsyncHandler(async (req: Request, res: Response) => {
-  const { tweetId } = req.params;
+  const { tweetId } = req.query;
   const userId = (req.user as IUser)?._id;
 
   const user = await UserModel.findById(userId).select(
@@ -73,6 +73,15 @@ const allCommentsOnAPost = AsyncHandler(async (req: Request, res: Response) => {
         localField: "author",
         foreignField: "_id",
         as: "owner",
+        pipeline: [
+          {
+            $project: {
+              _id: 1,
+              avatar: 1,
+              userName: 1
+            }
+          }
+        ]
       },
     },
     {
@@ -90,6 +99,15 @@ const allCommentsOnAPost = AsyncHandler(async (req: Request, res: Response) => {
         },
         owner: "$owner",
         tweetDetails: "$Tweet",
+        isLiked: {
+          $cond: {
+            if: {
+              $in: [(req.user as IUser)?._id, "$Likes.user"]
+            },
+            then: true,
+            else: false
+          }
+        }
       },
     },
     {
@@ -98,6 +116,8 @@ const allCommentsOnAPost = AsyncHandler(async (req: Request, res: Response) => {
         owner: 1,
         tweetDetails: 1,
         likes: 1,
+        createdAt: 1,
+        isLiked: 1
       },
     },
   ]).sort("-1");
@@ -110,14 +130,14 @@ const allCommentsOnAPost = AsyncHandler(async (req: Request, res: Response) => {
 });
 
 const deleteComment = AsyncHandler(async (req: Request, res: Response) => {
-  const { commentId } = req.params;
+  const { commentId } = req.query;
   const user = await UserModel.findById((req.user as IUser)._id);
   if (!user) throw new ApiError(400, "Only owner can delete the comment");
 
   const comment = await CommentModel.findById(commentId);
   if (!comment) throw new ApiError(404, "Comment not found");
 
-  if (user._id !== comment.author)
+  if (user?._id.toString() !== comment?.author.toString())
     throw new ApiError(400, "Only owner can delete the comment");
 
   const deleteComment = await CommentModel.findByIdAndDelete(comment._id);
@@ -138,7 +158,7 @@ const updateComment = AsyncHandler(async (req: Request, res: Response) => {
   const comment = await CommentModel.findById(commentId);
   if (!comment) throw new ApiError(404, "Comment not found");
 
-  if (user._id !== comment.author)
+  if (user._id.toString() !== comment.author.toString())
     throw new ApiError(400, "Only owner can update the comment");
 
   const updatedContent = await CommentModel.findByIdAndUpdate(comment._id, {
