@@ -91,7 +91,7 @@ const UserChats = () => {
             <img
               src={tweetComp.User.avatar}
               alt="DP"
-              className="h-10 w-10 rounded-full"
+              className="h-10 w-10 object-cover rounded-full"
             />
             <div className="flex items-center">
               <div className="font-semibold text-sm ml-2 text-black dark:text-white cursor-pointer hover:underline" onClick={() => navigate(`/home/profile/${tweetComp.User._id}`)}>
@@ -109,7 +109,7 @@ const UserChats = () => {
             <img
               src={tweetComp.media[0]}
               alt=""
-              className="h-64 w-full mt-2 rounded-lg"
+              className="h-64 w-full object-cover mt-2 rounded-lg"
             />
           ) : null}
           <div className="flex items-center mt-2">

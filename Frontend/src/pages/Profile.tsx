@@ -71,7 +71,7 @@ const Profile = () => {
         {user?.coverImage ? (
           <img
             src={user.coverImage}
-            className="h-40 w-full object-cover object-center overflow-hidden"
+            className="h-40 w-full object-cover overflow-hidden"
           />
         ) : (
           <div className="h-40 w-full bg-blue-400"></div>
@@ -80,7 +80,7 @@ const Profile = () => {
           <img
             src={user?.avatar}
             alt=""
-            className="h-20 w-20 rounded-full border-4 border-white dark:border-black"
+            className="h-20 w-20 rounded-full object-cover border-4 border-white dark:border-black"
           />
         </div>
       </div>

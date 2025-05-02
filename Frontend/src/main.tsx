@@ -23,7 +23,8 @@ const Profile = React.lazy(() => import("./pages/Profile.tsx"))
 const UserChats = React.lazy(() => import("./pages/UserChats.tsx"))
 const Tweets = React.lazy(() => import("./pages/Tweets.tsx"))
 const VerifyOTP = React.lazy(() => import("./pages/VerifyOTP.tsx"))
-
+const UserLikes = React.lazy(() => import("./pages/UserLikes.tsx"))
+const Search = React.lazy(() => import("./pages/search.tsx"))
 const routes = createBrowserRouter([
   {
     path: "/home",
@@ -31,9 +32,11 @@ const routes = createBrowserRouter([
     children: [
       { path: "", element: <Home /> },
       { path: "/home/profile/:userId", element: <Profile />, children: [
-        { path: "/home/profile/:userId/tweets", element: <UserChats /> }
+        { path: "/home/profile/:userId/tweets", element: <UserChats /> },
+        { path: "/home/profile/:userId/likes", element: <UserLikes /> },
       ] },
-      { path: "/home/tweets/:tweetId", element: <Tweets /> }
+      { path: "/home/tweets/:tweetId", element: <Tweets /> },
+      { path: "/home/search", element: <Search /> }
     ],
   },
   { path: "/", element: <SignIn /> },
@@ -57,7 +60,7 @@ createRoot(document.getElementById("root")!).render(
       <PersistGate loading={null} persistor={persistor}>
         <QueryClientProvider client={queryClient}>
           <ThemeProvider attribute="class" defaultTheme="dark">
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={<div>loading...</div>}>
               <Sonner />
               <RouterProvider router={routes} />
             </Suspense>

@@ -14,6 +14,8 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from "./components/ui/navigation-menu";
+import Theme from "./components/Theme";
+import { IconDoorExit } from "@tabler/icons-react";
 
 function App() {
   const user = useSelector((state: RootState) => state.user.user);
@@ -111,7 +113,8 @@ function App() {
                 ))}
               </div>
             </div>
-            <div>
+            <div className="flex flex-col gap-2">
+              <Theme />
               <SidebarLink
                 link={{
                   label: useSelector(
@@ -124,6 +127,14 @@ function App() {
                 }}
                 name="profile"
               />
+              {open ? (
+                <div className="flex gap-2 items-center">
+                  <IconDoorExit stroke={2} className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200 cursor-pointer" />
+                  <p className="text-sm">Logout</p>
+                </div>
+              ) : (
+                <IconDoorExit stroke={2} className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200 cursor-pointer" />
+              )}
             </div>
           </SidebarBody>
         </Sidebar>
@@ -134,12 +145,7 @@ function App() {
       <div className="flex flex-row md:hidden h-screen w-full z-20">
         <div className="absolute bottom-2 left-[50%] -translate-x-[50%]">
           <NavigationMenu className="bg-transparent inline-block z-20 px-0 sm:px-3 rounded-full border-1 border-black dark:border-gray-300 backdrop-blur-sm">
-            <NavigationMenuList>
-              <NavigationMenuItem className="bg-transparent">
-                <NavigationMenuLink className={`${navigationMenuTriggerStyle()} bg-transparent overflow-hidden rounded-l-full hover:bg-transparent`}>
-                  <img src={Logo} alt="" className="h-5 w-5 rounded-full" />
-                </NavigationMenuLink>
-              </NavigationMenuItem>
+            <NavigationMenuList> 
               {Mobilelinks.map((link, idx) => (
                 <NavigationMenuItem key={idx}>
                   <Link to={link.href} aria-label={`go to ${link.label} page`}>
@@ -153,10 +159,20 @@ function App() {
               ))}
               <NavigationMenuItem>
                 <Link to={`/home/profile/${user?._id}`} aria-label="go to profile page">
-                  <NavigationMenuLink className={`${navigationMenuTriggerStyle()}  bg-transparent overflow-hidden rounded-r-full hover:bg-transparent`}>
+                  <NavigationMenuLink className={`${navigationMenuTriggerStyle()}  bg-transparent overflow-hidden hover:bg-transparent`}>
                     <User2Icon className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
                   </NavigationMenuLink>
                 </Link>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuLink className={`${navigationMenuTriggerStyle()} bg-transparent overflow-hidden hover:bg-transparent`}>
+                  <IconDoorExit stroke={2} className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200 cursor-pointer" />
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuLink className={`${navigationMenuTriggerStyle()} bg-transparent overflow-hidden hover:bg-transparent`}>
+                  <Theme />
+                </NavigationMenuLink>
               </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>

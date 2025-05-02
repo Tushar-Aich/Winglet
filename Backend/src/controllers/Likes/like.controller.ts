@@ -1,3 +1,4 @@
+import mongoose from "mongoose"
 import CommentModel from "../../models/comment.model"
 import LikeModel from "../../models/like.model"
 import TweetModel from "../../models/tweet.model"
@@ -103,4 +104,106 @@ const dislikeComment = AsyncHandler(async(req: Request, res: Response) => {
     res.status(200).json(new ApiResponse(200, {}, "comment disliked successfully"));
 })
 
-export {likeTweet, dislikeTweet, likeComment, dislikeComment}
+const allLiked = AsyncHandler(async(req: Request, res: Response) => {
+    const {userId} = req.query
+
+    const user = await UserModel.findById(userId).select("-password -refreshToken")
+    if(!user) throw new ApiError(404, "User not found");
+
+    const likedTweets = await LikeModel.aggregate([
+        {
+            $match: {
+                user: new mongoose.Types.ObjectId(user._id)
+            }
+        },
+        {
+            $lookup: {
+                from: 'tweets',
+                localField: 'tweet',
+                foreignField: '_id',
+                as: 'LikedTweets',
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: 'users',
+                            localField : 'owner',
+                            foreignField: '_id',
+                            as: 'tweetOwner',
+                            pipeline: [
+                                {
+                                    $project: {
+                                        avatar: 1,
+                                        userName: 1,
+                                        _id: 1
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: 'likes',
+                            localField: '_id',
+                            foreignField: 'tweet',
+                            as: 'LikesOnTweet'
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: 'comments',
+                            localField: '_id',
+                            foreignField: 'tweet',
+                            as: 'CommentsOnTweet'
+                        }
+                    },
+                    {
+                        $addFields: {
+                            tweetOwner: {
+                                $first: "$tweetOwner"
+                            },
+                            likes: {
+                                $size: "$LikesOnTweet"
+                            },
+                            commentCount: {
+                                $size: "$CommentsOnTweet"
+                            },
+                            isLiked: {
+                                $cond: {
+                                    if: {
+                                        $in: [(req.user as IUser)?._id, "$LikesOnTweet.user"]
+                                    },
+                                    then: true,
+                                    else: false
+                                }
+                            }
+                        }
+                    },
+                    {
+                        $project: {
+                            content: 1,
+                            mentions: 1,
+                            createdAt: 1,
+                            media: 1,
+                            tweetOwner: 1,
+                            likes: 1,
+                            commentCount: 1,
+                            isLiked: 1
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $project: {
+                LikedTweets: 1
+            }
+        }
+    ])
+
+    if(!likedTweets) throw new ApiError(400, "Something went wrong while getting tweets");
+    return res.status(200).json(new ApiResponse(200, likedTweets.map((item) => ({
+        likedTweets: item.LikedTweets
+      })), "Tweets Fetched Successfully"))
+})
+
+export {likeTweet, dislikeTweet, likeComment, dislikeComment, allLiked}
