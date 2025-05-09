@@ -10,6 +10,7 @@ import mongoose, { ObjectId } from "mongoose";
 const createTweet = AsyncHandler(async (req: Request, res: Response) => {
   const { content } = req.body;
   if (!content) throw new ApiError(400, "Content is required");
+  console.log(content)
   const mentions: Array<string> =
     content.match(/(^|\W)@\b([-a-zA-Z0-9._]{3,25})\b/g) || [];
   const users: Array<IUser> = [];
@@ -393,7 +394,9 @@ const trendingTweets = AsyncHandler(async (req: Request, res: Response) => {
         commentCount: {
           $size: "$comments",
         },
-        owner: "$User",
+        owner: {
+          $first: "$User"
+        },
         isLiked: {
           $cond: {
             if: {

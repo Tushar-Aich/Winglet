@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const ACCEPTED_IMAGE_TYPES = ['image/jpg', 'image/jpeg', 'image/png']
+export const ACCEPTED_IMAGE_TYPES = ['image/jpg', 'image/jpeg', 'image/png']
 
 export const SignUpSchema = z.object({
   userName: z

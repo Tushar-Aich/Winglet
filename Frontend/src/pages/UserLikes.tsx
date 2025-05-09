@@ -21,7 +21,7 @@ type LikedTweets = {
   content: string;
   createdAt: string;
   likes: number;
-  media: [string | undefined];
+  media: string;
   mentions: [];
   _id: string;
 };
@@ -121,9 +121,9 @@ const UserLikes = () => {
                 <div className="text-md font-medium">
                   {parseMentions(likedTweet.content, likedTweet.mentions)}
                 </div>
-                {likedTweet.media && likedTweet.media.length > 0 ? (
+                {likedTweet.media ? (
                   <img
-                    src={likedTweet.media[0]}
+                    src={likedTweet.media}
                     alt="IMAGE"
                     className="h-64 w-full object-cover mt-2 rounded-lg"
                   />

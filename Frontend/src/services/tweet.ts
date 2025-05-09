@@ -1,4 +1,6 @@
+import { TweetSchema } from "@/schemas/tweetSchema";
 import axios from "axios";
+import { z } from "zod";
 
 const getUserTweets = async (userId: string) => {
   const res = await axios.get(
@@ -102,6 +104,32 @@ const trendingTweets = async () => {
   return res;
 };
 
+const createTweet = async (data:z.infer<typeof TweetSchema>) => {
+  const { content, media } = data
+
+  // Ensure content is properly handled for emojis
+  if(!media) {
+    const res = await axios.post(
+      `${import.meta.env.VITE_BACKEND_URL}/tweets/create`, 
+      {content}, 
+      {withCredentials: true}
+    )
+    return res
+  }
+
+  const formData = new FormData()
+  formData.append("content", content)
+  formData.append("media", media)
+
+  const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/tweets/create`, formData, {
+      withCredentials: true,
+      headers: { "Content-Type": "multipart/form-data" }
+    }
+  )
+
+  return res
+}
+
 export {
   getUserTweets,
   likeTweet,
@@ -115,4 +143,5 @@ export {
   deleteTweet,
   getLikedTweets,
   trendingTweets,
+  createTweet
 };

@@ -552,7 +552,7 @@ const deleteAcc = AsyncHandler(async (req: Request, res: Response) => {
 });
 
 const userDetails = AsyncHandler(async (req: Request, res: Response) => {
-  const { userId } = req.params;
+  const { userId } = req.query;
   const user = await UserModel.findById(userId);
   if (!user) throw new ApiError(404, "User not found");
 
@@ -735,6 +735,64 @@ const userDetails = AsyncHandler(async (req: Request, res: Response) => {
     );
 });
 
+const suggestedUsers = AsyncHandler(async (req: Request, res: Response) => {
+  const limit = 10
+  const users = await UserModel.aggregate([
+    {
+      $sample: { size: limit }
+    },
+    {
+      $lookup: {
+        from: 'follows',
+        localField: '_id',
+        foreignField: 'following',
+        as: 'followers'
+      }
+    },
+    {
+      $lookup: {
+        from: 'follows',
+        localField: '_id',
+        foreignField: 'follower',
+        as: 'followings'
+      }
+    },
+    {
+      $addFields: {
+        followersCount: {
+          $size: '$followers'
+        },
+        followingCount: {
+          $size: '$followings'
+        },
+        isFollowed: {
+          $cond: {
+            if: {
+              $in: [(req.user as IUser)?._id, "$followers.follower"]
+            },
+            then: true,
+            else: false
+          }
+        }
+      }
+    },
+    {
+      $project: {
+        _id: 1,
+        userName: 1,
+        OGName: 1,
+        avatar: 1,
+        followersCount: 1,
+        followingCount: 1,
+        isFollowed: 1
+      }
+    }
+  ])
+  console.log(users)
+  if(!users) throw new ApiError(400, "Something went wrong while fetching users");
+  return res.status(200).json(new ApiResponse(200, users, "Users fetched successfully"))
+})
+
 export {
   sendMail,
   verifyOTP,
@@ -751,5 +809,6 @@ export {
   addBio,
   addBirthDate,
   deleteAcc,
-  userDetails
+  userDetails,
+  suggestedUsers
 };

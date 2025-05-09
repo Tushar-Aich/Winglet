@@ -52,6 +52,21 @@ export const signUp = async (data: z.infer<typeof SignUpSchema>, email: string) 
 };
 
 export const getUser = async (userId: string) => {
-  const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/users/${userId}`, { withCredentials: true })
+  const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/users?userId=${userId}`, { withCredentials: true })
   return res.data
+}
+
+export const suggestedUsers = async () => {
+  const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/users/suggested-users`, { withCredentials: true })
+  return res
+}
+
+export const followUser = async (userId: string) => {
+  const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/followers/follow/${userId}`, {}, {withCredentials: true})
+  return res
+}
+
+export const unFollowUser = async (userId: string) => {
+  const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/followers/unfollow/${userId}`, {}, {withCredentials: true})
+  return res
 }

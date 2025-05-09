@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import ImageUpload from "@/components/ImageUpload.tsx";
 import { signUp } from "@/services/auth.ts";
+import Logo from "@/Assets/Transparent-logo.jpg";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -68,7 +69,7 @@ const SignUp = () => {
       <CardHeader>
         <CardTitle className="flex justify-center items-center space-x-2">
           <img
-            src="./Transparent-logo.jpg"
+            src={Logo}
             alt="Logo"
             className="h-8 w-8 rounded-full"
           />

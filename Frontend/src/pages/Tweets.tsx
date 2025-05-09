@@ -19,18 +19,12 @@ import noComment from "@/Assets/no-comment.png";
 import noCommentWhite from "@/Assets/no-comment-white.png";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { commentSchema } from "@/schemas/commentSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { useTheme } from "next-themes"
 
 type tweet = {
   User: {
@@ -43,7 +37,7 @@ type tweet = {
   content: string;
   createdAt: string;
   likes: number;
-  media: [string | undefined];
+  media: string;
   mentions: [];
   _id: string;
 };
@@ -67,26 +61,23 @@ const Tweets = () => {
   const navigate = useNavigate();
   const user = useSelector((state: RootState) => state.user?.user);
 
-  const theme = localStorage.getItem("theme");
-
-  const handleCounting = (e: string) => {
-    setText(e);
-  };
+  const {theme} = useTheme();
 
   const formatDate = (date: string) => {
     return date.split("T")[0];
   };
 
-  const form = useForm<z.infer<typeof commentSchema>>({
+  const { register, handleSubmit, formState: { errors } } = useForm<z.infer<typeof commentSchema>>({
     resolver: zodResolver(commentSchema),
     defaultValues: {
       content: "",
     },
   });
 
-  const handleSubmit = async (data: z.infer<typeof commentSchema>) => {
+  const HandleSubmit = async (data: z.infer<typeof commentSchema>) => {
     setSubmitting(true);
     try {
+      console.log(data)
       const res = await postComment(tweetId, data.content);
       console.log(res.data);
       toast("Commented successfully", {
@@ -219,11 +210,11 @@ const Tweets = () => {
             <div className="text-xs font-medium md:text-[16px] mt-2">
               {parseMentions(tweetComp.content, tweetComp.mentions)}
             </div>
-            {tweetComp.media && tweetComp.media.length > 0 ? (
+            {tweetComp.media ? (
               <img
-                src={tweetComp.media[0]}
+                src={tweetComp.media}
                 alt=""
-                className="md:h-64 h-40 w-full mt-2 rounded-lg"
+                className="md:h-64 h-40 w-full mt-2 rounded-lg object-cover"
               />
             ) : null}
             <div className="flex items-center mt-2">
@@ -245,7 +236,10 @@ const Tweets = () => {
               <div className="ml-1">{tweetComp.comments.length}</div>
 
               {tweetComp.User._id === user?._id ? (
-                <Trash2 className="h-4 w-4 shrink-0 text-neutral-700 dark:text-neutral-200 cursor-pointer ml-8 md:ml-12" onClick={() => handleDeleteTweet(tweetComp._id)}/>
+                <Trash2 className="h-4 w-4 shrink-0 text-neutral-700 dark:text-neutral-200 cursor-pointer ml-8 md:ml-12" onClick={() => {
+                  handleDeleteTweet(tweetComp._id)
+                  navigate("/home")
+                }}/>
               ) : null}
             </div>
           </div>
@@ -259,30 +253,16 @@ const Tweets = () => {
                 @{tweetComp.User.userName}
               </span>
             </p>
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(handleSubmit)}
-                className="space-y-3"
-              >
-                <FormField
-                  control={form.control}
-                  name="content"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Comment here"
-                          onChangeCapture={(e) =>
-                            handleCounting(e.currentTarget.value)
-                          }
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+              <form onSubmit={handleSubmit(HandleSubmit)} className="space-y-3">
+                <Textarea
+                  {...register("content")}
+                  value={text}
+                  className="h-32 w-full resize-none text-lg md:text-xl font-bold"
+                  placeholder="Comment here"
+                  onChange={(e) => setText(e.target.value)}
                 />
-                <div className="flex space-x-4">
+                {errors.content && <p className="text-red-500 font-bold text-sm md:text-lg">{errors.content.message}</p>}
+                <div className="flex items-center space-x-4">
                   {submitting ? (
                     <Button className="relative right-0">
                       Replying
@@ -305,7 +285,6 @@ const Tweets = () => {
                   )}
                 </div>
               </form>
-            </Form>
           </div>
           {tweetComp.comments.length === 0 ? (
             <div className="h-full w-full flex flex-col justify-center items-center mt-5">

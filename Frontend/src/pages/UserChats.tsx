@@ -17,7 +17,7 @@ type tweet = {
   content: string;
   createdAt: string;
   likes: number;
-  media: [string | undefined];
+  media: string;
   mentions: [];
   _id: string;
 };
@@ -81,7 +81,7 @@ const UserChats = () => {
     return () => setTweet([]);
   }, [userId]);
   return (
-    <div className="h-full w-full">
+    <div className="w-full">
       {tweet.map((tweetComp, idx) => (
         <div
           className="w-full p-4 border-b-1 border-black dark:border-white"
@@ -105,9 +105,9 @@ const UserChats = () => {
           <div className="text-md font-medium">
             {parseMentions(tweetComp.content, tweetComp.mentions)}
           </div>
-          {tweetComp.media && tweetComp.media.length > 0 ? (
+          {tweetComp.media ? (
             <img
-              src={tweetComp.media[0]}
+              src={tweetComp.media}
               alt=""
               className="h-64 w-full object-cover mt-2 rounded-lg"
             />
