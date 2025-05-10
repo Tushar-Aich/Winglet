@@ -55,7 +55,7 @@ const createTweet = AsyncHandler(async (req: Request, res: Response) => {
 });
 
 const getAllTweets = AsyncHandler(async (req: Request, res: Response) => {
-  const { page = 1, limit = 10, query, userId } = req.query;
+  const { page = 1, limit = 10 } = req.query;
 
   const pageNum = parseInt(page as string); //page number
   const limitNum = parseInt(limit as string); //number of tweets sent at once
@@ -65,21 +65,67 @@ const getAllTweets = AsyncHandler(async (req: Request, res: Response) => {
 
   const skip = (pageNum - 1) * limitNum; //Number of tweets to be skipped
 
-  const tweets = TweetModel.aggregate([
+  const tweets = await TweetModel.aggregate([
     {
-      $match: {
-        $or: [
+      $match: {}
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "owner",
+        foreignField: "_id",
+        as: "User",
+        pipeline: [
           {
-            title: {
-              $regex: query, // for finding videos according to the queries
-              $options: "i", // formatching upper and lower case characters
+            $project: {
+              avatar: 1,
+              userName: 1,
             },
           },
-          {
-            owner: new mongoose.Types.ObjectId(userId as string),
-          },
-          {},
         ],
+      },
+    },
+    {
+      $lookup: {
+        from: "likes",
+        localField: "_id",
+        foreignField: "tweet",
+        as: "LikesOnTweet",
+      },
+    },
+    {
+      $lookup: {
+        from: "comments",
+        localField: "_id",
+        foreignField: "tweet",
+        as: "CommentOnTweet",
+      },
+    },
+    {
+      $addFields: {
+        User: {
+          $first: "$User",
+        },
+        likes: {
+          $size: "$LikesOnTweet",
+        },
+        commentCount: {
+          $size: "$CommentOnTweet",
+        },
+        isLiked: {
+          $cond: {
+            if: {
+              $in: [(req.user as IUser)?._id, "$LikesOnTweet.user"],
+            },
+            then: true,
+            else: false,
+          },
+        },
+      },
+    },
+    {
+      $sort: {
+        createdAt: -1,
       },
     },
     {
@@ -88,12 +134,13 @@ const getAllTweets = AsyncHandler(async (req: Request, res: Response) => {
         User: 1,
         mentions: 1,
         createdAt: 1,
+        likes: 1,
+        commentCount: 1,
+        media: 1,
+        isLiked: 1,
       },
     },
-  ])
-    .skip(skip)
-    .limit(limitNum)
-    .sort("-1");
+  ]).skip(skip).limit(limitNum)
 
   if (!tweets) throw new ApiError(400, "No tweets found");
 
@@ -429,7 +476,6 @@ const trendingTweets = AsyncHandler(async (req: Request, res: Response) => {
       },
     },
   ]);
-  console.log(top10Tweets)
   if (!top10Tweets)
     throw new ApiError(400, "Something went wrong while fetching tweets");
   return res

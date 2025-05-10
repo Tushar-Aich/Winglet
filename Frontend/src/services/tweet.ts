@@ -11,7 +11,7 @@ const getUserTweets = async (userId: string) => {
 };
 
 const likeTweet = async (tweetId: string) => {
-  const res = axios.post(
+  const res = await axios.post(
     `${import.meta.env.VITE_BACKEND_URL}/likes/${tweetId}`,
     {},
     { withCredentials: true }
@@ -20,7 +20,7 @@ const likeTweet = async (tweetId: string) => {
 };
 
 const dislikeTweet = async (tweetId: string) => {
-  const res = axios.post(
+  const res = await axios.post(
     `${import.meta.env.VITE_BACKEND_URL}/likes/dislike/${tweetId}`,
     {},
     { withCredentials: true }
@@ -130,6 +130,11 @@ const createTweet = async (data:z.infer<typeof TweetSchema>) => {
   return res
 }
 
+const getAllTweets = async (page: number) => {
+  const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/tweets?page=${page}`, {withCredentials: true})
+  return res
+}
+
 export {
   getUserTweets,
   likeTweet,
@@ -143,5 +148,6 @@ export {
   deleteTweet,
   getLikedTweets,
   trendingTweets,
-  createTweet
+  createTweet,
+  getAllTweets
 };

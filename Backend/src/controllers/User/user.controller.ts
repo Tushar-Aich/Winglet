@@ -788,7 +788,6 @@ const suggestedUsers = AsyncHandler(async (req: Request, res: Response) => {
       }
     }
   ])
-  console.log(users)
   if(!users) throw new ApiError(400, "Something went wrong while fetching users");
   return res.status(200).json(new ApiResponse(200, users, "Users fetched successfully"))
 })
