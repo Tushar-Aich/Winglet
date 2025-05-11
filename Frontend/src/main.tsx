@@ -1,8 +1,6 @@
 import React, { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { ThemeProvider } from "next-themes";
-import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Toaster as Sonner } from "./components/ui/sonner.tsx";
@@ -52,22 +50,35 @@ const routes = createBrowserRouter([
   },
 ]);
 
-const queryClient = new QueryClient();
+// Using a safer pattern for root creation that handles HMR better
+let root: ReturnType<typeof createRoot>;
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <QueryClientProvider client={queryClient}>
+function render() {
+  const container = document.getElementById("root");
+  
+  if (!container) {
+    throw new Error("Root element not found");
+  }
+  
+  // This prevents multiple root creations during HMR
+  if (!root) {
+    root = createRoot(container);
+  }
+  
+  root.render(
+    <StrictMode>
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
           <ThemeProvider attribute="class" defaultTheme="dark">
             <Suspense fallback={<div>loading...</div>}>
               <Sonner />
               <RouterProvider router={routes} />
             </Suspense>
           </ThemeProvider>
-          <ReactQueryDevtools initialIsOpen={false} />
-        </QueryClientProvider>
-      </PersistGate>
-    </Provider>
-  </StrictMode>
-);
+        </PersistGate>
+      </Provider>
+    </StrictMode>
+  );
+}
+
+render();

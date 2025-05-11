@@ -94,7 +94,7 @@ const UserLikes = () => {
             tweet.likedTweets.map((likedTweet, idx) => (
               <div
                 key={idx}
-                className="w-full p-4 border-b-1 border-black dark:border-white cursor-pointer"
+                className="w-full p-4 border-b-1 border-black dark:border-neutral-700 cursor-pointer"
                 onClick={() => navigate(`/home/tweets/${likedTweet._id}`)}
               >
                 <div className="flex items-start">

@@ -16,7 +16,8 @@ import {
   addBirthDate,
   deleteAcc,
   userDetails,
-  suggestedUsers
+  suggestedUsers,
+  searchUser
 } from "../controllers/User/user.controller.js";
 import OTPrateLimit from "../middlewares/OTPrateLimit.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
@@ -87,5 +88,7 @@ router.route("/change-password").post(changePassword);
 router.route("/").get(verifyJWT, userDetails)
 
 router.route("/suggested-users").get(verifyJWT, suggestedUsers)
+
+router.route("/search").post(verifyJWT, searchUser)
 
 export default router;

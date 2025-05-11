@@ -84,7 +84,7 @@ const UserChats = () => {
     <div className="w-full">
       {tweet.map((tweetComp, idx) => (
         <div
-          className="w-full p-4 border-b-1 border-black dark:border-white"
+          className="w-full p-4 border-b-1 border-black dark:border-neutral-700"
           key={idx}
         >
           <div className="flex items-start">

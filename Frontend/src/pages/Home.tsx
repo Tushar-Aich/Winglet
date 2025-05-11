@@ -399,7 +399,7 @@ const Home = () => {
         {tweet.map((tweetComp) => (
           <div
             key={tweetComp._id}
-            className="w-full p-4 border-b-1 border-black dark:border-white cursor-pointer"
+            className="w-full p-4 border-b-1 border-black dark:border-neutral-700 cursor-pointer"
             onClick={() => navigate(`/home/tweets/${tweetComp._id}`)}
           >
             <div className="flex items-start">

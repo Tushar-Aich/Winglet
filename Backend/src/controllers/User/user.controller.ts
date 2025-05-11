@@ -792,6 +792,47 @@ const suggestedUsers = AsyncHandler(async (req: Request, res: Response) => {
   return res.status(200).json(new ApiResponse(200, users, "Users fetched successfully"))
 })
 
+const searchUser = AsyncHandler(async (req: Request, res: Response) => {
+  const { search } = req.body
+  console.log(search)
+
+  if(typeof search !== "string") throw new ApiError(400, "search must be a string");
+
+  const users = await UserModel.aggregate([
+    {
+      $match: {
+        $or: [
+          {
+            userName: {
+              $regex: search,
+              $options: "i"
+            }
+          },
+          {
+            OGName: {
+              $regex: search,
+              $options: "i"
+            }
+          },
+          {}
+        ]
+      }
+    },
+    {
+      $project: {
+        _id: 1,
+        userName: 1,
+        OGName: 1,
+        avatar: 1,
+      }
+    }
+  ])
+
+  if(!users) throw new ApiError(404, "Users not found");
+
+  return res.status(200).json(new ApiResponse(200, users, "User fetched successfully"))
+})
+
 export {
   sendMail,
   verifyOTP,
@@ -809,5 +850,6 @@ export {
   addBirthDate,
   deleteAcc,
   userDetails,
-  suggestedUsers
+  suggestedUsers,
+  searchUser
 };

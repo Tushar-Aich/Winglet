@@ -70,3 +70,8 @@ export const unFollowUser = async (userId: string) => {
   const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/followers/unfollow/${userId}`, {}, {withCredentials: true})
   return res
 }
+
+export const searchUser = async (search: string) => {
+  const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/users/search`,{search}, { withCredentials: true })
+  return res
+}

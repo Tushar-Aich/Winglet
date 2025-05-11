@@ -110,10 +110,10 @@ const Container = ({children}: {children: React.ReactNode}) => {
         <div className="hidden lg:flex lg:col-span-1 lg:flex-col h-full">
           <div className="grid grid-cols-1 grid-rows-2 gap-2 h-full w-full">
             <div className="h-full p-2 overflow-y-auto max-h-[calc(50vh-2rem)]">
-              <h1 className="font-bold text-lg text-black dark:text-white text-center pb-3 border-b-2 border-b-black dark:border-b-white sticky top-0 bg-transparent backdrop-blur-sm z-10">Trending Tweets</h1>
+              <h1 className="font-bold text-lg text-black dark:text-white text-center pb-3 border-b-2 border-b-black dark:border-b-gray-600 sticky top-0 bg-transparent backdrop-blur-sm z-10">Trending Tweets</h1>
             {tweet.map((tweetComp, idx) => (
         <div
-          className="w-full p-4 border-b-1 border-black dark:border-white cursor-pointer"
+          className="w-full p-4 border-b-1 border-black dark:border-neutral-700 cursor-pointer"
           key={idx}
           onClick={() => navigate(`/home/tweets/${tweetComp._id}`)}
         >
@@ -187,10 +187,10 @@ const Container = ({children}: {children: React.ReactNode}) => {
       ))}
             </div>
             <div className="overflow-y-auto p-2 max-h-[calc(50vh-2rem)]">
-              <h1 className="font-bold text-lg text-black dark:text-white text-center pb-3 border-b-2 border-b-black dark:border-b-white sticky top-0 bg-transparent backdrop-blur-sm z-10">Suggested Users</h1>
+              <h1 className="font-bold text-lg text-black dark:text-white text-center pb-3 border-b-2 border-b-black dark:border-b-gray-600 sticky top-0 bg-transparent backdrop-blur-sm z-10">Suggested Users</h1>
               {backendUser.map((userComp, idx) => (
                 <Card
-                  className="w-full p-4 border-b-1 border-b-black dark:border-b-white rounded-none"
+                  className="w-full p-4 border-b-1 border-b-black dark:border-b-neutral-700 rounded-none"
                   key={idx}
                   onClick={() => navigate(`/home/profile/${userComp._id}`)}
                 >
