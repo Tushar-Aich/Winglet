@@ -35,8 +35,7 @@ const likeTweetNotification = AsyncHandler(async (req: Request, res: Response) =
     })
 
     if(receipent.FCMtoken) {
-        console.log("Hi")
-        await admin.messaging().send({
+        const res = await admin.messaging().send({
             token: receipent.FCMtoken as string,
             notification: {
                 title: "New Like",
@@ -49,6 +48,7 @@ const likeTweetNotification = AsyncHandler(async (req: Request, res: Response) =
                 }
             }
         })
+        console.log(res)
     }
 
     return res.status(200).json(new ApiResponse(200, newNotification, "Notification created successsfully"));

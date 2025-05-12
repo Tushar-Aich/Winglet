@@ -1,4 +1,4 @@
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Bell, Home, Mail, Search, Bird, User2Icon } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -18,9 +18,12 @@ import Theme from "./components/Theme";
 import { IconDoorExit } from "@tabler/icons-react";
 import NotificationBell from "./components/NotificationBell";
 import { requestPermission } from "./lib/requestPermission";
+import { onMessage } from "firebase/messaging";
+import { messaging } from "./config/firebaseConfig";
 
 function App() {
   const user = useSelector((state: RootState) => state.user.user);
+  const navigate = useNavigate()
   
   useEffect(() => {
     // Request notification permission when the app is loaded
@@ -30,6 +33,24 @@ function App() {
       );
     }
   }, [user]);
+
+  useEffect(() => {
+    const unsubscribe = onMessage(messaging, (payload) => {
+      console.log('[Foreground Notification]', payload)
+
+      if(Notification.permission === "granted") {
+        const notification = new Notification(payload.notification?.title!, {
+          body: payload.notification?.body,
+          icon: payload.notification?.icon,
+        });
+        notification.onclick = () => {
+          navigate(payload.fcmOptions?.link!);
+        };
+      }
+    })
+
+    return () => unsubscribe()
+  }, [])
 
   const links = [
     {
