@@ -75,3 +75,8 @@ export const searchUser = async (search: string) => {
   const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/users/search`,{search}, { withCredentials: true })
   return res
 }
+
+export const saveFCM = async (token: string) => {
+  const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/users/save-token`,{token}, { withCredentials: true })
+  return res
+}

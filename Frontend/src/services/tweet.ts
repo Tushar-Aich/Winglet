@@ -16,6 +16,19 @@ const likeTweet = async (tweetId: string) => {
     {},
     { withCredentials: true }
   );
+  
+  try {
+    // Import and call the like notification function
+    const { likeNotification } = await import("./notification");
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    if (user?._id) {
+      await likeNotification(tweetId, user._id);
+    }
+  } catch (error) {
+    console.error("Error sending like notification:", error);
+    // Continue execution even if notification fails
+  }
+  
   return res;
 };
 
@@ -42,6 +55,21 @@ const postComment = async (tweetId: string | undefined, content: string) => {
     { content },
     { withCredentials: true }
   );
+  
+  try {
+    // Import and call the comment notification function
+    if (tweetId) {
+      const { commentNotification } = await import("./notification");
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      if (user?._id) {
+        await commentNotification(tweetId, user._id, content);
+      }
+    }
+  } catch (error) {
+    console.error("Error sending comment notification:", error);
+    // Continue execution even if notification fails
+  }
+  
   return res;
 };
 

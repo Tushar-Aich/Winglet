@@ -15,6 +15,8 @@ export interface IUser extends Document {
   isPrivate: Boolean;
   lastActive: Date;
   refreshToken: String;
+  isFirstLogin: Boolean;
+  FCMtoken: String;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: String): Promise<Boolean>;
@@ -81,6 +83,13 @@ const UserSchema = new Schema<IUser>(
     refreshToken: {
       type: String,
     },
+    isFirstLogin: {
+      type: Boolean,
+      default: false
+    },
+    FCMtoken: {
+      type: String
+    }
   },
   {
     timestamps: true,

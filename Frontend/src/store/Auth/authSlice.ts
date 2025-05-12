@@ -12,6 +12,7 @@ interface User {
     isVerified: Boolean;
     isPrivate: Boolean;
     lastActive: Date;
+    isFirstLogin: Boolean;
 }
 
 interface UserState {

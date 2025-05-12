@@ -17,7 +17,8 @@ import {
   deleteAcc,
   userDetails,
   suggestedUsers,
-  searchUser
+  searchUser,
+  saveFCM
 } from "../controllers/User/user.controller.js";
 import OTPrateLimit from "../middlewares/OTPrateLimit.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
@@ -90,5 +91,7 @@ router.route("/").get(verifyJWT, userDetails)
 router.route("/suggested-users").get(verifyJWT, suggestedUsers)
 
 router.route("/search").post(verifyJWT, searchUser)
+
+router.route("/save-token").post(verifyJWT, saveFCM)
 
 export default router;

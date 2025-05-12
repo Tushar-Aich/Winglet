@@ -1,14 +1,30 @@
 import { useState } from "react"
 import { Button } from "./ui/button"
 import { followUser, unFollowUser } from "@/services/auth"
+import { followNotification } from "@/services/notification"
+import { useSelector } from "react-redux"
+import { RootState } from "@/store/store"
 
 const FollowButton = ({ userId, isFollowed }: {userId: string, isFollowed: boolean}) => {
     const [followed, setFollowed] = useState<boolean>(isFollowed)
-
+    const currentUser = useSelector((state: RootState) => state.user.user)
+    
     const handleFollow = async () => {
       const res = await followUser(userId)
       console.log(res.data)
-      if(res.data.success) setFollowed(!followed)
+      if(res.data.success) {
+        setFollowed(!followed)
+        
+        // Send follow notification
+        if (currentUser?._id) {
+          try {
+            await followNotification(userId, currentUser._id.toString())
+          } catch (error) {
+            console.error("Error sending follow notification:", error)
+            // Continue execution even if notification fails
+          }
+        }
+      }
     }
 
     const handleUnFollow = async () => {

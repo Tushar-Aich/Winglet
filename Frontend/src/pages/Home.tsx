@@ -17,6 +17,8 @@ import { useNavigate } from "react-router-dom"
 import { IconBubble } from "@tabler/icons-react"
 import { useSelector } from "react-redux"
 import { RootState } from "@/store/store"
+import { requestPermission } from "@/lib/requestPermission"
+import { likeNotification } from "@/services/notification"
 
 type tweet = {
   User?: {
@@ -250,6 +252,11 @@ const Home = () => {
           return tweet;
         })
       );
+
+      if(user?._id !== undefined) {
+        const userId = user?._id as string
+        await likeNotification(tweetId, userId)
+      }
     } catch (error) {
       console.error("Error liking tweet:", error);
       toast("Error liking tweet", {
@@ -290,6 +297,12 @@ const Home = () => {
       });
     }
   };
+
+  useEffect(() => {
+    if(user?.isFirstLogin) {
+      requestPermission()
+    }
+  }, [user])
 
   return (
     <div className="h-full w-full">

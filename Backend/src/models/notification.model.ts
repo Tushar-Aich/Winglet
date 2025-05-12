@@ -3,8 +3,10 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface INotification extends Document {
   sender: mongoose.Types.ObjectId;
   receipent: mongoose.Types.ObjectId;
-  type: 'like' | 'retweet' | 'reply' | 'follow';
+  type: 'like' | 'message' | 'reply' | 'follow';
   tweet?: mongoose.Types.ObjectId;
+  content: String;
+  isRead: Boolean;
   createdAt: Date;
 }
 
@@ -20,13 +22,21 @@ const NotificationSchema = new Schema<INotification>(
       ref: "User",
     },
     type: {
-        type: String,
-        enum: ['like' , 'retweet' , 'reply' , 'follow'],
-        required: true
+      type: String,
+      enum: ['like' , 'message' , 'reply' , 'follow'],
+      required: true
     },
     tweet: {
-        type: Schema.Types.ObjectId,
-        ref: 'Tweet'
+      type: Schema.Types.ObjectId,
+      ref: 'Tweet'
+    },
+    content: {
+      type: String,
+      required: true
+    },
+    isRead: {
+      type: Boolean,
+      default: false
     }
   },
   {

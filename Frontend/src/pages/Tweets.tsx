@@ -9,6 +9,7 @@ import {
   likeTweet,
   postComment,
 } from "@/services/tweet";
+import { commentNotification, likeNotification } from "@/services/notification";
 import { RootState } from "@/store/store";
 import { IconBubble } from "@tabler/icons-react";
 import { Heart, Loader2, Trash2 } from "lucide-react";
@@ -45,7 +46,11 @@ type tweet = {
 type comment = {
   content: string;
   likes: number;
-  owner: [avatar: string, _id: string, userName: string];
+  owner: {
+    avatar: string;
+    _id: string;
+    userName: string;
+  };
   tweetDetails: [];
   _id: string;
   createdAt: string;
@@ -87,6 +92,17 @@ const Tweets = () => {
           onClick: () => console.log("dismiss"),
         },
       });
+      
+      // Send comment notification if we have a valid tweetId and user
+      if (user?._id && tweetId) {
+        try {
+          await commentNotification(tweetId, user._id.toString(), data.content);
+        } catch (error) {
+          console.error("Error sending comment notification:", error);
+          // Continue execution even if notification fails
+        }
+      }
+      
       const res2 = await allCommentsOnAPost(tweetId)
       setComment(res2.data.data)
       setSubmitting(false);
@@ -133,6 +149,16 @@ const Tweets = () => {
     const res = await getTweetById(tweetId);
     console.log(res.data?.data);
     setTweet(res.data?.data);
+    
+    // Send like notification if we have a valid tweetId and user
+    if (user?._id) {
+      try {
+        await likeNotification(tweetId, user._id.toString());
+      } catch (error) {
+        console.error("Error sending like notification:", error);
+        // Continue execution even if notification fails
+      }
+    }
   };
 
   const handleTweetDislike = async (tweetId: string) => {
@@ -253,38 +279,38 @@ const Tweets = () => {
                 @{tweetComp.User.userName}
               </span>
             </p>
-              <form onSubmit={handleSubmit(HandleSubmit)} className="space-y-3">
-                <Textarea
-                  {...register("content")}
-                  value={text}
-                  className="h-32 w-full resize-none text-lg md:text-xl font-bold"
-                  placeholder="Comment here"
-                  onChange={(e) => setText(e.target.value)}
-                />
-                {errors.content && <p className="text-red-500 font-bold text-sm md:text-lg">{errors.content.message}</p>}
-                <div className="flex items-center space-x-4">
-                  {submitting ? (
-                    <Button className="relative right-0">
-                      Replying
-                      <Loader2 className="animate-spin" />
-                    </Button>
-                  ) : (
-                    <Button className="cursor-pointer">Reply</Button>
-                  )}
-                  {text.length > 150 ? (
-                    <div>
-                      <h1 className="text-red-500 font-bold text-xl">
-                        {text.length}
-                      </h1>
-                      <p className="text-red-500 font-bold text-sm md:text-lg">
-                        Can't post more than 150 characters
-                      </p>
-                    </div>
-                  ) : (
-                    <h1 className=" font-bold text-xl">{text.length}</h1>
-                  )}
-                </div>
-              </form>
+            <form onSubmit={handleSubmit(HandleSubmit)} className="space-y-3">
+              <Textarea
+                {...register("content")}
+                value={text}
+                className="h-32 w-full resize-none text-lg md:text-xl font-bold"
+                placeholder="Comment here"
+                onChange={(e) => setText(e.target.value)}
+              />
+              {errors.content && <p className="text-red-500 font-bold text-sm md:text-lg">{errors.content.message}</p>}
+              <div className="flex items-center space-x-4">
+                {submitting ? (
+                  <Button className="relative right-0">
+                    Replying
+                    <Loader2 className="animate-spin" />
+                  </Button>
+                ) : (
+                  <Button className="cursor-pointer">Reply</Button>
+                )}
+                {text.length > 150 ? (
+                  <div>
+                    <h1 className="text-red-500 font-bold text-xl">
+                      {text.length}
+                    </h1>
+                    <p className="text-red-500 font-bold text-sm md:text-lg">
+                      Can't post more than 150 characters
+                    </p>
+                  </div>
+                ) : (
+                  <h1 className=" font-bold text-xl">{text.length}</h1>
+                )}
+              </div>
+            </form>
           </div>
           {tweetComp.comments.length === 0 ? (
             <div className="h-full w-full flex flex-col justify-center items-center mt-5">
@@ -318,30 +344,24 @@ const Tweets = () => {
                 <div key={idx}>
                   <div className="w-full p-4 border-b-1 border-black dark:border-white">
                     <div className="flex items-start">
-                      {com.owner.map((user, idx) => (
-                        <div key={idx}>
-                          <div className="flex items-start">
-                            <img
-                              src={user.avatar}
-                              alt="DP"
-                              className="md:h-10 md:w-10 h-6 w-6 rounded-full object-cover"
-                            />
-                            <div className="flex items-center">
-                              <div
-                                className="font-semibold md:text-sm text-xs ml-2 text-black dark:text-white cursor-pointer hover:underline"
-                                onClick={() =>
-                                  navigate(`/home/profile/${user._id}`)
-                                }
-                              >
-                                {user.userName}
-                              </div>
-                              <div className="text-xs text-muted-foreground ml-2">
-                                {formatDate(com.createdAt)}
-                              </div>
-                            </div>
-                          </div>
+                      <img
+                        src={com.owner.avatar}
+                        alt="DP"
+                        className="md:h-10 md:w-10 h-6 w-6 rounded-full object-cover"
+                      />
+                      <div className="flex items-center">
+                        <div
+                          className="font-semibold md:text-sm text-xs ml-2 text-black dark:text-white cursor-pointer hover:underline"
+                          onClick={() =>
+                            navigate(`/home/profile/${com.owner._id}`)
+                          }
+                        >
+                          {com.owner.userName}
                         </div>
-                      ))}
+                        <div className="text-xs text-muted-foreground ml-2">
+                          {formatDate(com.createdAt)}
+                        </div>
+                      </div>
                     </div>
                     <div className="text-xs font-medium md:text-[16px] mt-2">
                       {com.content}
@@ -354,11 +374,17 @@ const Tweets = () => {
                           onClick={() => handleCommentDisLike(com._id)}
                         />
                       ) : (
-                        <Heart className="h-4 w-4 shrink-0 text-neutral-700 dark:text-neutral-200 cursor-pointer" onClick={() => handleCommentLike(com._id)}/>
+                        <Heart 
+                          className="h-4 w-4 shrink-0 text-neutral-700 dark:text-neutral-200 cursor-pointer" 
+                          onClick={() => handleCommentLike(com._id)}
+                        />
                       )}
                       <div className="ml-1">{com.likes}</div>
-                      {com.owner[0]._id === user?._id ? (
-                        <Trash2 className="h-4 w-4 shrink-0 text-neutral-700 dark:text-neutral-200 cursor-pointer ml-8 md:ml-12" onClick={() => handleDeleteComment(com._id)}/>
+                      {com.owner._id === user?._id ? (
+                        <Trash2 
+                          className="h-4 w-4 shrink-0 text-neutral-700 dark:text-neutral-200 cursor-pointer ml-8 md:ml-12" 
+                          onClick={() => handleDeleteComment(com._id)}
+                        />
                       ) : null}
                     </div>
                   </div>

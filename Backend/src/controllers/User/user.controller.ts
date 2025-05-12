@@ -144,6 +144,12 @@ const login = AsyncHandler(async (req: Request, res: Response) => {
   const accessToken = generateAccessToken(user._id, user.email, user.userName);
   const refreshToken = generateRefreshToken(user._id);
 
+  const isFirstLogin = user.isFirstLogin
+
+  if(isFirstLogin === false) {
+    await UserModel.findByIdAndUpdate(user._id, { isFirstLogin: true })
+  }
+
   const updatedUser = await UserModel.findByIdAndUpdate(user._id, {
     refreshToken,
     lastActive: Date.now(),
@@ -833,6 +839,18 @@ const searchUser = AsyncHandler(async (req: Request, res: Response) => {
   return res.status(200).json(new ApiResponse(200, users, "User fetched successfully"))
 })
 
+const saveFCM = AsyncHandler(async (req: Request, res: Response) => {
+  const { token } = req.body
+
+  if(!token) throw new ApiError(404, "Token not found");
+
+  const user = await UserModel.findByIdAndUpdate((req.user as IUser)?._id, { FCMtoken: token })
+
+  if(!user) throw new ApiError(400, "Something went wrong while getting user");
+
+  return res.status(200).json(new ApiResponse(200, user, "FCMtoken set successfully"))
+})
+
 export {
   sendMail,
   verifyOTP,
@@ -851,5 +869,6 @@ export {
   deleteAcc,
   userDetails,
   suggestedUsers,
-  searchUser
+  searchUser,
+  saveFCM
 };
