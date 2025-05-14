@@ -255,7 +255,7 @@ const Home = () => {
 
       if(user?._id !== undefined) {
         const userId = user?._id as string
-        await likeNotification(tweetId, userId)
+        await likeNotification(userId, tweetId)
       }
     } catch (error) {
       console.error("Error liking tweet:", error);

@@ -14,13 +14,12 @@ import {
 import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import ImageUpload from "@/components/ImageUpload.tsx";
-import { signUp } from "@/services/auth.ts";
 import Logo from "@/Assets/Transparent-logo.jpg";
+import { useRegister } from "@/Hooks/useRegister.ts";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -33,35 +32,36 @@ const SignUp = () => {
       password: ""
     }
   });
-  const [isSubmitting, setIsSubmitting] = useState<Boolean>(false);
+  const registerMutation = useRegister()
+
   const handleSubmit = async (data: z.infer<typeof SignUpSchema>) => {
-    setIsSubmitting(true);
-    try {
-      const res = await signUp(data, email);
-      console.log(res);
-      toast("User Signed Up successfully", {
-        description: "Successful✅",
-        action: {
-          label: "X",
-          onClick: () => console.log("dismiss"),
-        },
-      });
-      navigate("/");
-      localStorage.removeItem('email')
-      localStorage.removeItem('OTPmatched')
-      localStorage.removeItem('emailSent')
-      setIsSubmitting(false);
-    } catch (error: any) {
-      setIsSubmitting(false);
-      toast("Error occured while Signing Up user❌", {
-        description: "Please try again",
-        action: {
-          label: "X",
-          onClick: () => console.log("dismiss"),
-        },
-      });
-      console.log(error);
-    }
+
+    registerMutation.mutate({ data, email }, {
+      onSuccess: (res) => {
+        console.log(res);
+        toast("User Signed Up successfully", {
+          description: "Successful✅",
+          action: {
+            label: "X",
+            onClick: () => console.log("dismiss"),
+          },
+        });
+        navigate("/");
+        localStorage.removeItem('email')
+        localStorage.removeItem('OTPmatched')
+        localStorage.removeItem('emailSent')
+      },
+      onError: (error: any) => {
+        toast("Error occured while Signing Up user❌", {
+          description: "Please try again",
+          action: {
+            label: "X",
+            onClick: () => console.log("dismiss"),
+          },
+        });
+        console.log(error);
+      }
+    })
   };
   return (
     <div className="w-screen h-screen flex justify-center items-center">
@@ -142,7 +142,7 @@ const SignUp = () => {
                 </FormItem>
               )}
             />
-            {isSubmitting ? (
+            {registerMutation.isPending ? (
               <Button
                 type="submit"
                 className="relative left-[50%] -translate-x-[50%] "

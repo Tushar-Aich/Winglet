@@ -1,4 +1,3 @@
-import { suggestedUsers } from "@/services/auth";
 import { dislikeTweet, likeTweet, trendingTweets } from "@/services/tweet"
 import { RootState } from "@/store/store";
 import { IconBubble } from "@tabler/icons-react";
@@ -8,6 +7,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import FollowButton from "./FollowButton";
+import { useSuggestedUser } from "@/Hooks/useSuggestedUser";
 
 type tweet = {
   commentCount: number;
@@ -41,6 +41,8 @@ const Container = ({children}: {children: React.ReactNode}) => {
 
   const navigate = useNavigate();
   const user = useSelector((state: RootState) => state.user?.user);
+
+  const suggestedUserMutation = useSuggestedUser()
 
   const formatDate = (date: string) => {
     return date.split("T")[0];
@@ -93,9 +95,12 @@ const Container = ({children}: {children: React.ReactNode}) => {
       const res = await trendingTweets()
       setTweet(res.data.data)
 
-      const res2 = await suggestedUsers()
-      console.log("Users : \n", res2.data.data)
-      setBackendUser(res2.data.data)
+      suggestedUserMutation.mutate(10, {
+        onSuccess: (res) => {
+          console.log("Users : \n", res)
+          setBackendUser(res)
+        }
+      })
     })()
 
     return () => setTweet([]);

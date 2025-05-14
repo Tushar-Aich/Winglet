@@ -1,3 +1,4 @@
+import "./sentry.ts"
 import React, { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { ThemeProvider } from "next-themes";
@@ -7,7 +8,7 @@ import { Toaster as Sonner } from "./components/ui/sonner.tsx";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { persistor, store } from "./store/store.ts";
-
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 
 const App = React.lazy(() => import("./App.tsx"))
 const SignIn = React.lazy(() => import("./pages/Sign-in.tsx"))
@@ -50,6 +51,8 @@ const routes = createBrowserRouter([
   },
 ]);
 
+const queryClient = new QueryClient()
+
 // Using a safer pattern for root creation that handles HMR better
 let root: ReturnType<typeof createRoot>;
 
@@ -69,12 +72,14 @@ function render() {
     <StrictMode>
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
-          <ThemeProvider attribute="class" defaultTheme="dark">
-            <Suspense fallback={<div>loading...</div>}>
-              <Sonner />
-              <RouterProvider router={routes} />
-            </Suspense>
-          </ThemeProvider>
+          <QueryClientProvider client={queryClient}>
+            <ThemeProvider attribute="class" defaultTheme="dark">
+              <Suspense fallback={<div>loading...</div>}>
+                <Sonner />
+                <RouterProvider router={routes} />
+              </Suspense>
+            </ThemeProvider>
+          </QueryClientProvider>
         </PersistGate>
       </Provider>
     </StrictMode>

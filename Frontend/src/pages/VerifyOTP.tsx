@@ -10,12 +10,11 @@ import {
   FormItem,
   FormLabel,
 } from "../components/ui/form.tsx";
-import { useState } from "react";
 import { Button } from "@/components/ui/button.tsx";
 import { Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input.tsx";
 import { toast } from "sonner";
-import { verifyOtp } from "@/services/auth.ts";
+import { useVerifyOTP } from "@/Hooks/useVerifyOTP.ts";
 
 
 const SendOTP = () => {
@@ -26,35 +25,36 @@ const SendOTP = () => {
       code: "",
     },
   });
-  const [isSubmitting, setIsSubmitting] = useState<Boolean>(false);
 
-  const email = localStorage.getItem("email")
+  const verifyOTPMutation = useVerifyOTP()
+
+  const email = localStorage.getItem("email")!
 
   const handleSubmit = async (data: z.infer<typeof otpSchema>) => {
-    setIsSubmitting(true)
-    try {
-      const res = await verifyOtp(data, email)
-      console.log(res)
-      toast("Email verified successfully", {
-        description: "Successful✅",
-        action: {
-          label: "X",
-          onClick: () => console.log("dismiss"),
-        },
-      });
-      localStorage.setItem('OTPmatched', res.data.data.status)
-      navigate('/sign-up')
-    } catch (error) {
-      setIsSubmitting(false)
-      toast("Error occured while verifying email❌", {
-        description: "Please try again",
-        action: {
-          label: "X",
-          onClick: () => console.log("dismiss"),
-        },
-      });
-      console.error(error)
-    }
+    verifyOTPMutation.mutate({ data, email }, {
+      onSuccess: (res) => {
+        console.log(res)
+        toast("Email verified successfully", {
+          description: "Successful✅",
+          action: {
+            label: "X",
+            onClick: () => console.log("dismiss"),
+          },
+        });
+        localStorage.setItem('OTPmatched', res.status)
+        navigate('/sign-up')
+      },
+      onError: (error: any) => {
+        toast("Error occured while verifying email❌", {
+          description: "Please try again",
+          action: {
+            label: "X",
+            onClick: () => console.log("dismiss"),
+          },
+        });
+        console.error(error)
+      }
+    })
   }
 
   return (
@@ -91,7 +91,7 @@ const SendOTP = () => {
                   </FormItem>
                 )}
               />
-              {isSubmitting ? (
+              {verifyOTPMutation.isPending ? (
                 <Button
                   type="submit"
                   className="relative left-[50%] -translate-x-[50%] "

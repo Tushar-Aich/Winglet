@@ -1,4 +1,4 @@
-import { getUser } from "@/services/auth";
+import { useGetUser } from "@/Hooks/useGetUser";
 import { RootState } from "@/store/store";
 import { IconBalloon } from "@tabler/icons-react";
 import { Calendar } from "lucide-react";
@@ -9,14 +9,11 @@ import { NavLink, Outlet, useParams } from "react-router-dom";
 type user = {
   OGName: string;
   avatar: string;
-  bio: string | null;
-  birthDate: string | undefined;
-  comments: [];
-  coverImage: string | undefined;
+  bio?: string;
+  birthDate?: string;
+  coverImage?: string;
   email: string;
   followersCount: number;
-  folloers: [];
-  followings: [];
   followingCount: number;
   isFollowed: boolean;
   isPrivate: boolean;
@@ -24,8 +21,6 @@ type user = {
   lastActive: string;
   createdAt: string;
   updatedAt: string;
-  likes: [];
-  tweets: [];
   userName: string;
   _id: string;
 };
@@ -55,11 +50,16 @@ const Profile = () => {
     },
   ]
 
+  const getUserMutation = useGetUser()
+
   useEffect(() => {
     (async () => {
-      const res = await getUser(userId as string);
-      console.log(res.data);
-      setUser(res.data[0]);
+      getUserMutation.mutate(userId as string, {
+        onSuccess: (res) => {
+          console.log(res);
+          setUser(res[0]);
+        }
+      })
     })();
 
     return () => setUser(null);

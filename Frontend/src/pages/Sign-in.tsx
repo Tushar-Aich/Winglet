@@ -11,15 +11,14 @@ import {
 import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { useState } from "react";
 import { Loader2 } from "lucide-react";
-import { login } from "@/services/auth.ts";
 import { loginSchema } from "@/schemas/loginSchema.ts";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store/store.ts";
 import { storeLogin } from "@/store/Auth/authSlice.ts";
 import { toast } from "sonner";
 import Logo from "../Assets/Transparent-logo.jpg"
+import { useLogin } from "@/Hooks/useLogin.ts";
 
 const SignIn = () => {
   const navigate = useNavigate();
@@ -31,34 +30,35 @@ const SignIn = () => {
       password: "",
     },
   });
-  const [isSubmitting, setIsSubmitting] = useState<Boolean>(false);
+  const loginMutation = useLogin()
 
   const handleSubmit = async (data: z.infer<typeof loginSchema>) => {
-    setIsSubmitting(true);
-    try {
-      const res = await login(data);
-      console.log(res);
-      toast("User logged in successfully", {
-        description: "Successful✅",
-        action: {
-          label: "X",
-          onClick: () => console.log("dismiss"),
-        },
-      });
-      dispatch(storeLogin(res.data.data.user));
-      navigate("/home");
-      setIsSubmitting(false);
-    } catch (error: any) {
-      setIsSubmitting(false);
-      toast("Error occured while logging in user", {
+    const { email, password } = data
+
+    loginMutation.mutate({ email, password }, {
+      onSuccess: (res) => {
+        console.log(res);
+        toast("User logged in successfully", {
+          description: "Successful✅",
+          action: {
+            label: "X",
+            onClick: () => console.log("dismiss"),
+          },
+        });
+        dispatch(storeLogin(res.user));
+        navigate("/home");
+      },
+      onError: (error: any) => {
+        toast(error?.response?.data?.message || "Login Failed", {
         description: "Please try again",
         action: {
           label: "X",
           onClick: () => console.log("dismiss"),
         },
-      });
-      console.log(error);
-    }
+        });
+        console.log(error);
+      }
+    })
   };
 
   return (
@@ -126,7 +126,7 @@ const SignIn = () => {
               >
                 Forgot Password
               </p>
-              {isSubmitting ? (
+              {loginMutation.isPending ? (
                 <Button
                   type="submit"
                   className="relative left-[50%] -translate-x-[50%] "

@@ -13,7 +13,7 @@ export const requestPermission = async () => {
 
             const res = await saveFCM(token)
 
-            console.log(res.data.data)
+            console.log(res)
         }
     } catch (error) {
         console.error("FCM permission error: ", error)

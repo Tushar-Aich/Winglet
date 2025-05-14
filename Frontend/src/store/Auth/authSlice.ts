@@ -7,11 +7,11 @@ interface User {
     OGName: String;
     bio?: String;
     avatar: String;
-    coverImage: String;
+    coverImage?: String;
     birthDate?: String;
     isVerified: Boolean;
     isPrivate: Boolean;
-    lastActive: Date;
+    lastActive: String;
     isFirstLogin: Boolean;
 }
 

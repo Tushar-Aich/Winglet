@@ -573,99 +573,6 @@ const userDetails = AsyncHandler(async (req: Request, res: Response) => {
     },
     {
       $lookup: {
-        from: "tweets",
-        localField: "_id",
-        foreignField: "owner",
-        as: "userTweets",
-        pipeline: [
-          {
-            $lookup: {
-              from: 'likes',
-              localField: '_id',
-              foreignField: 'tweet',
-              as: 'likesOnTweet'
-            }
-          },
-          {
-            $lookup: {
-              from: 'comments',
-              localField: '_id',
-              foreignField: 'tweet',
-              as: 'commentsOnTweet'
-            }
-          },
-          {
-            $addFields: {
-              likes: {
-                $size: '$likesOnTweet'
-              },
-              comments: {
-                $size: "$commentsOnTweet"
-              }
-            }
-          }
-        ]
-      },
-    },
-    {
-      $lookup: {
-        from: "comments",
-        localField: "_id",
-        foreignField: "author",
-        as: "userComments",
-        pipeline: [
-          {
-            $lookup: {
-              from: 'tweets',
-              localField: 'tweet',
-              foreignField: '_id',
-              as: 'TweetComments'
-            }
-          },
-          {
-            $lookup: {
-              from: 'likes',
-              localField: '_id',
-              foreignField: 'comment',
-              as: 'likeOnComment'
-            }
-          },
-          {
-            $addFields: {
-              comments: '$TweetComments',
-              likes: {
-                $size: '$likeOnComment'
-              }
-            }
-          }
-        ]
-      },
-    },
-    {
-      $lookup: {
-        from: "likes",
-        localField: "_id",
-        foreignField: "user",
-        as: "userLikes",
-        pipeline: [
-          {
-            $lookup: {
-              from: 'tweets',
-              localField: 'tweet',
-              foreignField: '_id',
-              as: 'likedTweets'
-            }
-          },
-          {
-            $addFields: {
-              tweets: '$likedTweets'
-            }
-          }
-        ]
-      },
-    },
-    {
-      $lookup: {
         from: 'follows',
         localField: '_id',
         foreignField: 'follower',
@@ -682,17 +589,12 @@ const userDetails = AsyncHandler(async (req: Request, res: Response) => {
     },
     {
       $addFields: {
-        likes: "$userLikes",
-        tweets: "$userTweets",
-        comments: "$userComments",
         followersCount: {
           $size: '$followers'
         },
         followingCount: {
           $size: '$followings'
         },
-        followers: "$followers",
-        followings: "$followings",
         isFollowed: {
           $cond: {
             if: {
@@ -719,13 +621,8 @@ const userDetails = AsyncHandler(async (req: Request, res: Response) => {
         lastActive: 1,
         createdAt: 1,
         updatedAt: 1,
-        likes: 1,
-        tweets: 1,
-        comments: 1,
         followersCount: 1,
         followingCount: 1,
-        followers: 1,
-        followings: 1,
         isFollowed: 1
       },
     },
@@ -844,7 +741,7 @@ const saveFCM = AsyncHandler(async (req: Request, res: Response) => {
 
   if(!token) throw new ApiError(404, "Token not found");
 
-  const user = await UserModel.findByIdAndUpdate((req.user as IUser)?._id, { FCMtoken: token })
+  const user = await UserModel.findByIdAndUpdate((req.user as IUser)?._id, { FCMtoken: token }).select("-password -refreshToken")
 
   if(!user) throw new ApiError(400, "Something went wrong while getting user");
 

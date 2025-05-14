@@ -10,12 +10,11 @@ import {
   FormItem,
   FormLabel,
 } from "../components/ui/form.tsx";
-import { useState } from "react";
 import { Button } from "@/components/ui/button.tsx";
 import { Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input.tsx";
 import { toast } from "sonner";
-import { sendEmail } from "@/services/auth.ts";
+import { useSendEmail } from "@/Hooks/useSendEmail.ts";
 
 
 const SendOTP = () => {
@@ -26,34 +25,34 @@ const SendOTP = () => {
       email: "",
     },
   });
-  const [isSubmitting, setIsSubmitting] = useState<Boolean>(false);
+  const sendEmailMutation = useSendEmail()
 
   const handleSubmit = async (data: z.infer<typeof emailSchema>) => {
-    setIsSubmitting(true)
-    try {
-      const res = await sendEmail(data)
-      console.log(res)
-      toast("Email sent successfully", {
-        description: "Successful✅",
-        action: {
-          label: "X",
-          onClick: () => console.log("dismiss"),
-        },
-      });
-      localStorage.setItem('email', data.email)
-      localStorage.setItem('emailSent', res.data.data.status)
-      navigate('/verify-otp')
-    } catch (error) {
-      setIsSubmitting(false)
-      toast("Error occured while Sending email to user❌", {
-        description: "Please try again",
-        action: {
-          label: "X",
-          onClick: () => console.log("dismiss"),
-        },
-      });
-      console.error(error)
-    }
+    sendEmailMutation.mutate(data, {
+      onSuccess: (res) => {
+        console.log(res)
+        toast("Email sent successfully", {
+          description: "Successful✅",
+          action: {
+            label: "X",
+            onClick: () => console.log("dismiss"),
+          },
+        });
+        localStorage.setItem('email', data.email)
+        localStorage.setItem('emailSent', res.status)
+        navigate('/verify-otp')
+      },
+      onError: (error: any) => {
+        toast("Error occured while Sending email to user❌", {
+          description: "Please try again",
+          action: {
+            label: "X",
+            onClick: () => console.log("dismiss"),
+          },
+        });
+        console.error(error)
+      }
+    })
   }
 
   return (
@@ -99,7 +98,7 @@ const SendOTP = () => {
                   </FormItem>
                 )}
               />
-              {isSubmitting ? (
+              {sendEmailMutation.isPending ? (
                 <Button
                   type="submit"
                   className="relative left-[50%] -translate-x-[50%] "

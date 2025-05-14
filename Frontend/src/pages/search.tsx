@@ -8,8 +8,8 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useSearchUser } from "@/Hooks/useSearchUser";
 import { searchSchema } from "@/schemas/SearchSchema";
-import { searchUser } from "@/services/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
@@ -25,11 +25,12 @@ type user = {
 }
 
 const search = () => {
-  const [submitting, setSubmitting] = useState<Boolean>(false);
 
   const [searchedUser, setSearchedUser] = useState<user[]>([])
 
   const navigate = useNavigate()
+
+  const searchUserMutation = useSearchUser()
 
   const form = useForm<z.infer<typeof searchSchema>>({
     resolver: zodResolver(searchSchema),
@@ -39,18 +40,14 @@ const search = () => {
   });
 
   const handleSubmit = async (data: z.infer<typeof searchSchema>) => {
-    setSubmitting(true)
-    try {
-      const res = await searchUser(data.query)
-
-      setSearchedUser(res.data.data)
-
-      setSubmitting(false)
-      
-    } catch (error) {
-      console.log(error)
-      setSubmitting(false)
-    }
+      searchUserMutation.mutate(data.query, {
+        onSuccess: (res) => {
+          setSearchedUser(res)
+        },
+        onError: (error: any) => {
+          console.log(error)
+        }
+      })
   };
   return (
     <div className="h-full w-full">
@@ -69,7 +66,7 @@ const search = () => {
               </FormItem>
             )}
           />
-          {submitting ? (
+          {searchUserMutation.isPending ? (
             <Button
               type="submit"
               className="relative left-[50%] -translate-x-[50%] "

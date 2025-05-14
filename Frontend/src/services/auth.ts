@@ -1,40 +1,35 @@
 import { emailSchema } from "@/schemas/EmailVerification";
-import { loginSchema } from "@/schemas/loginSchema.ts";
 import { otpSchema } from "@/schemas/OTPSchema";
 import { SignUpSchema } from "@/schemas/signUpSchema";
-import axios from "axios";
 import { z } from "zod";
+import api from "./axios";
+import { emailResponse, FCMTokenResponse, GetUserResponse, LoginResponse, OTPresponse, SearchUser, SignUpResponse, SuggestedUser } from "@/Interfaces";
 
 
-export const login = async (data: z.infer<typeof loginSchema>) => {
-  const { email, password } = data;
-  const res = axios.post(
-    `${import.meta.env.VITE_BACKEND_URL}/users/login`,
-    { email, password },
-    { headers: { "Content-Type": "application/json" }, withCredentials: true }
-  );
-  return res;
+export const login = async (email: string, password: string): Promise<LoginResponse> => {
+  const res = await api.post("/users/login", { email, password }, { headers: { "Content-Type": "application/json" } })
+  return res.data.data
 };
 
-export const sendEmail = async (data: z.infer<typeof emailSchema>) => {
-  const res = axios.post(
-    `${import.meta.env.VITE_BACKEND_URL}/users/sendMail`,
+export const sendEmail = async (data: z.infer<typeof emailSchema>): Promise<emailResponse> => {
+  const res = await api.post(
+    `/users/sendMail`,
     data,
     { headers: { "Content-Type": "application/json" } }
   );
-  return res;
+  return res.data.data;
 };
 
-export const verifyOtp = async (data: z.infer<typeof otpSchema>, email: string | null) => {
+export const verifyOtp = async (data: z.infer<typeof otpSchema>, email: string | null): Promise<OTPresponse> => {
   const { code } = data
-  const res = axios.post(
-    `${import.meta.env.VITE_BACKEND_URL}/users/verifyOTP`,
+  const res = await api.post(
+    `/users/verifyOTP`,
     { code, email },
     { headers: { "Content-Type": "application/json" } }
   );
-  return res;
+  return res.data.data;
 };
-export const signUp = async (data: z.infer<typeof SignUpSchema>, email: string) => {
+export const signUp = async (data: z.infer<typeof SignUpSchema>, email: string): Promise<SignUpResponse> => {
   const { userName, OGName, password, avatar } = data
   const formData = new FormData()
   formData.append('userName', userName);
@@ -43,40 +38,40 @@ export const signUp = async (data: z.infer<typeof SignUpSchema>, email: string) 
   formData.append('avatar', avatar);
   formData.append('email', email);
 
-  const res = axios.post(
-    `${import.meta.env.VITE_BACKEND_URL}/users/signUp`,
+  const res = await api.post(
+    `/users/signUp`,
     formData,
     { headers: { "Content-Type": "multipart/form-data" } }
   );
-  return res;
+  return res.data.data;
 };
 
-export const getUser = async (userId: string) => {
-  const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/users?userId=${userId}`, { withCredentials: true })
-  return res.data
+export const getUser = async (userId: string): Promise<GetUserResponse[]> => {
+  const res = await api.get(`/users/?userId=${userId}`, { withCredentials: true })
+  return res.data.data
 }
 
-export const suggestedUsers = async () => {
-  const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/users/suggested-users`, { withCredentials: true })
-  return res
+export const suggestedUsers = async (): Promise<SuggestedUser[]> => {
+  const res = await api.get(`/users/suggested-users`, { withCredentials: true })
+  return res.data.data
 }
 
 export const followUser = async (userId: string) => {
-  const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/followers/follow/${userId}`, {}, {withCredentials: true})
+  const res = await api.post(`/followers/follow/${userId}`, {}, {withCredentials: true})
   return res
 }
 
 export const unFollowUser = async (userId: string) => {
-  const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/followers/unfollow/${userId}`, {}, {withCredentials: true})
+  const res = await api.post(`/followers/unfollow/${userId}`, {}, {withCredentials: true})
   return res
 }
 
-export const searchUser = async (search: string) => {
-  const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/users/search`,{search}, { withCredentials: true })
-  return res
+export const searchUser = async (search: string): Promise<SearchUser[]> => {
+  const res = await api.post(`/users/search`,{search}, { withCredentials: true })
+  return res.data.data
 }
 
-export const saveFCM = async (token: string) => {
-  const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/users/save-token`,{token}, { withCredentials: true })
-  return res
+export const saveFCM = async (token: string): Promise<FCMTokenResponse> => {
+  const res = await api.post(`/users/save-token`,{token}, { withCredentials: true })
+  return res.data.data
 }
