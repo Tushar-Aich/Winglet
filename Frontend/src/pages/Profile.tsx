@@ -1,29 +1,10 @@
-import { useGetUser } from "@/Hooks/useGetUser";
+import { useGetUser } from "@/Hooks/useQueries";
 import { RootState } from "@/store/store";
 import { IconBalloon } from "@tabler/icons-react";
 import { Calendar } from "lucide-react";
-import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { NavLink, Outlet, useParams } from "react-router-dom";
 
-type user = {
-  OGName: string;
-  avatar: string;
-  bio?: string;
-  birthDate?: string;
-  coverImage?: string;
-  email: string;
-  followersCount: number;
-  followingCount: number;
-  isFollowed: boolean;
-  isPrivate: boolean;
-  isVerified: boolean;
-  lastActive: string;
-  createdAt: string;
-  updatedAt: string;
-  userName: string;
-  _id: string;
-};
 
 const formatDate = (date: string | undefined) => {
   if(date) return date.split("T")[0]
@@ -31,7 +12,6 @@ const formatDate = (date: string | undefined) => {
 }
 
 const Profile = () => {
-  const [user, setUser] = useState<user | null>();
   const { userId } = useParams();
   const rootUser = useSelector((state: RootState) => state.user.user);
 
@@ -50,20 +30,9 @@ const Profile = () => {
     },
   ]
 
-  const getUserMutation = useGetUser()
+  const getUser = useGetUser(userId!)
 
-  useEffect(() => {
-    (async () => {
-      getUserMutation.mutate(userId as string, {
-        onSuccess: (res) => {
-          console.log(res);
-          setUser(res[0]);
-        }
-      })
-    })();
-
-    return () => setUser(null);
-  }, [userId]);
+  const user = getUser?.data
 
   return (
     <div className="w-full h-full overflow-y-auto">

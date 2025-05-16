@@ -46,9 +46,9 @@ export const signUp = async (data: z.infer<typeof SignUpSchema>, email: string):
   return res.data.data;
 };
 
-export const getUser = async (userId: string): Promise<GetUserResponse[]> => {
+export const getUser = async (userId: string): Promise<GetUserResponse> => {
   const res = await api.get(`/users/?userId=${userId}`, { withCredentials: true })
-  return res.data.data
+  return res.data.data[0]
 }
 
 export const suggestedUsers = async (): Promise<SuggestedUser[]> => {

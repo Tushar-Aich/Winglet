@@ -150,14 +150,22 @@ const getAllTweets = AsyncHandler(async (req: Request, res: Response) => {
 });
 
 const getUserTweets = AsyncHandler(async (req: Request, res: Response) => {
-  const { userId } = req.params;
+  const { userId, page = 1, limit = 10 } = req.query;
   const user = await UserModel.findById(userId);
   if (!user) throw new ApiError(404, "User not found");
+
+  const pageNum = parseInt(page as string); //page number
+  const limitNum = parseInt(limit as string); //number of tweets sent at once
+
+  if (!Number.isInteger(pageNum) || !Number.isInteger(limitNum))
+    throw new ApiError(400, "Invalid queries passed");
+
+  const skip = (pageNum - 1) * limitNum; //Number of tweets to be skipped
 
   const Tweets = await TweetModel.aggregate([
     {
       $match: {
-        owner: new mongoose.Types.ObjectId(userId),
+        owner: new mongoose.Types.ObjectId(userId?.toString()),
       },
     },
     {
@@ -251,7 +259,7 @@ const getUserTweets = AsyncHandler(async (req: Request, res: Response) => {
         isLiked: 1,
       },
     },
-  ]);
+  ]).skip(skip).limit(limitNum);
   if (!Tweets)
     throw new ApiError(400, "Something went wrong while fetching all tweets");
 

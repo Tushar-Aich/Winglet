@@ -1,48 +1,30 @@
-import { dislikeTweet, likeTweet, trendingTweets } from "@/services/tweet"
 import { RootState } from "@/store/store";
 import { IconBubble } from "@tabler/icons-react";
 import { Heart, Trash2 } from "lucide-react";
-import React, { useEffect, useState, JSX } from "react"
+import React, { JSX } from "react"
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import FollowButton from "./FollowButton";
-import { useSuggestedUser } from "@/Hooks/useSuggestedUser";
+import { useSuggestedUsers, useTrending } from "@/Hooks/useQueries";
+import { useDisikeTweet, useLikeTweet } from "@/Hooks/useLikeTweet";
+import { toast } from "sonner";
+import { QueryClient } from "@tanstack/react-query";
 
-type tweet = {
-  commentCount: number;
-  content: string;
-  createdAt: string;
-  isLiked: boolean;
-  likeCount: number;
-  mentions: [];
-  media: string;
-  owner: {
-    avatar: string,
-    userName: string,
-    _id: string
-  };
-  _id: string
-}
-
-type user = {
-  OGName: string;
-  avatar: string;
-  followersCount: number;
-  followingCount: number;
-  isFollowed: boolean;
-  userName: string;
-  _id: string
-}
 
 const Container = ({children}: {children: React.ReactNode}) => {
-  const [tweet, setTweet] = useState<tweet[]>([]);
-  const [backendUser, setBackendUser] = useState<user[]>([])
-
   const navigate = useNavigate();
   const user = useSelector((state: RootState) => state.user?.user);
 
-  const suggestedUserMutation = useSuggestedUser()
+  const suggestedUser = useSuggestedUsers()
+
+  const trendingTweets = useTrending()
+
+  const tweetLikeMutation = useLikeTweet()
+
+  const tweetDislikeMutation = useDisikeTweet()
+
+  const queryClient = new QueryClient()
 
   const formatDate = (date: string) => {
     return date.split("T")[0];
@@ -77,34 +59,31 @@ const Container = ({children}: {children: React.ReactNode}) => {
   };
 
   const handleTweetLike = async (tweetId: string) => {
-    await likeTweet(tweetId);
-    const res = await trendingTweets();
-    console.log(res.data?.data);
-    setTweet(res.data?.data);
+    tweetLikeMutation.mutate(tweetId, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['trending'] })
+      },
+      onError: (error: any) => {
+        toast(error.message || "Error liking tweet", {
+          description: "Please try again"
+        })
+      }
+    })
+
   };
   
   const handleTweetDislike = async (tweetId: string) => {
-    await dislikeTweet(tweetId);
-    const res = await trendingTweets();
-    console.log(res.data?.data);
-    setTweet(res.data?.data);
+    tweetDislikeMutation.mutate(tweetId, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['trending'] })
+      },
+      onError: (error: any) => {
+        toast(error.message || "Error disliking tweet", {
+          description: "Please try again"
+        })
+      }
+    })
   };
-
-  useEffect(() => {
-    ;(async () => {
-      const res = await trendingTweets()
-      setTweet(res.data.data)
-
-      suggestedUserMutation.mutate(10, {
-        onSuccess: (res) => {
-          console.log("Users : \n", res)
-          setBackendUser(res)
-        }
-      })
-    })()
-
-    return () => setTweet([]);
-  }, [])
   return (
     <div className="w-full border-2 rounded-lg px-4 py-2 my-2 mx-3 bg-white dark:bg-black border-neutral-200 dark:border-neutral-950 grid grid-cols-1 gap-4 lg:grid-cols-3 overflow-y-hidden h-[calc(100vh-2rem)]">
         <div className="col-span-2 h-full overflow-y-auto">
@@ -116,84 +95,92 @@ const Container = ({children}: {children: React.ReactNode}) => {
           <div className="grid grid-cols-1 grid-rows-2 gap-2 h-full w-full">
             <div className="h-full p-2 overflow-y-auto max-h-[calc(50vh-2rem)]">
               <h1 className="font-bold text-lg text-black dark:text-white text-center pb-3 border-b-2 border-b-black dark:border-b-gray-600 sticky top-0 bg-transparent backdrop-blur-sm z-10">Trending Tweets</h1>
-            {tweet.map((tweetComp, idx) => (
-        <div
-          className="w-full p-4 border-b-1 border-black dark:border-neutral-700 cursor-pointer"
-          key={idx}
-          onClick={() => navigate(`/home/tweets/${tweetComp._id}`)}
-        >
-          <div className="flex items-start">
-            <img
-              src={tweetComp.owner.avatar}
-              alt="DP"
-              className="h-10 w-10 object-cover rounded-full"
-            />
-            <div className="flex items-center">
-              <div className="font-semibold text-sm ml-2 text-black dark:text-white cursor-pointer hover:underline" 
-              onClick={(e: React.MouseEvent<HTMLDivElement>) =>{
-                e.stopPropagation()
-                navigate(`/home/profile/${tweetComp.owner._id}`)
-              }}>
-                {tweetComp.owner.userName}
-              </div>
-              <div className="text-xs text-muted-foreground ml-2">
-                {formatDate(tweetComp.createdAt)}
-              </div>
-            </div>
-          </div>
-          <div className="text-md font-medium">
-            {parseMentions(tweetComp.content, tweetComp.mentions)}
-          </div>
-          {tweetComp.media && tweetComp.media.length > 0 ? (
-            <img
-              src={tweetComp.media}
-              alt=""
-              className="h-64 w-full object-cover mt-2 rounded-lg"
-            />
-          ) : null}
-          <div className="flex items-center mt-2">
-            {tweetComp.isLiked ? (
-              <button onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                e.stopPropagation()
-                handleTweetDislike(tweetComp._id)
-              }}>
-                <Heart
-                className="h-4 w-4 shrink-0 text-red-500 cursor-pointer"
-                fill="#fb2c36"
-              />
-              </button>
-            ) : (
-              <button onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                e.stopPropagation()
-                handleTweetLike(tweetComp._id)
-              }}>
-                <Heart
-                  className="h-4 w-4 shrink-0 text-neutral-700 dark:text-neutral-200 cursor-pointer"
-                />
-              </button>
-            )}
-            <div className="ml-1">{tweetComp.likeCount}</div>
-
-            <button onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                e.stopPropagation()
-                navigate(`/home/tweets/${tweetComp._id}`)
-              }}>
-              <IconBubble
-                className="h-4 w-4 shrink-0 text-neutral-700 dark:text-neutral-200 cursor-pointer ml-8"
-              />
-            </button>
-            <div className="ml-1">{tweetComp.commentCount}</div>
-
-            {tweetComp.owner._id === user?._id ? (
-              <Trash2 className="h-4 w-4 shrink-0 text-neutral-700 dark:text-neutral-200 cursor-pointer ml-8" />
-            ) : null}
-          </div>
-        </div>
-      ))}
+              {trendingTweets.data === undefined ? (
+                <div className="text-center font-bold">
+                  No tweets in last 24 hours
+                </div>
+              ) : (
+                <div>
+                  {trendingTweets.data.map((tweetComp, idx) => (
+                    <div
+                      className="w-full p-4 border-b-1 border-black dark:border-neutral-700 cursor-pointer"
+                      key={idx}
+                      onClick={() => navigate(`/home/tweets/${tweetComp._id}`)}
+                    >
+                      <div className="flex items-start">
+                        <img
+                          src={tweetComp.owner.avatar}
+                          alt="DP"
+                          className="h-10 w-10 object-cover rounded-full"
+                        />
+                        <div className="flex items-center">
+                          <div className="font-semibold text-sm ml-2 text-black dark:text-white cursor-pointer hover:underline" 
+                          onClick={(e: React.MouseEvent<HTMLDivElement>) =>{
+                            e.stopPropagation()
+                            navigate(`/home/profile/${tweetComp.owner._id}`)
+                          }}>
+                            {tweetComp.owner.userName}
+                          </div>
+                          <div className="text-xs text-muted-foreground ml-2">
+                            {formatDate(tweetComp.createdAt)}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-md font-medium">
+                        {parseMentions(tweetComp.content, tweetComp.mentions)}
+                      </div>
+                      {tweetComp.media && tweetComp.media.length > 0 ? (
+                        <img
+                          src={tweetComp.media}
+                          alt=""
+                          className="h-64 w-full object-cover mt-2 rounded-lg"
+                        />
+                      ) : null}
+                      <div className="flex items-center mt-2">
+                        {tweetComp.isLiked ? (
+                          <button onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                            e.stopPropagation()
+                            handleTweetDislike(tweetComp._id)
+                          }}>
+                            <Heart
+                            className="h-4 w-4 shrink-0 text-red-500 cursor-pointer"
+                            fill="#fb2c36"
+                          />
+                          </button>
+                        ) : (
+                          <button onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                            e.stopPropagation()
+                            handleTweetLike(tweetComp._id)
+                          }}>
+                            <Heart
+                              className="h-4 w-4 shrink-0 text-neutral-700 dark:text-neutral-200 cursor-pointer"
+                            />
+                          </button>
+                        )}
+                        <div className="ml-1">{tweetComp.likeCount}</div>
+                      
+                        <button onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                            e.stopPropagation()
+                            navigate(`/home/tweets/${tweetComp._id}`)
+                          }}>
+                          <IconBubble
+                            className="h-4 w-4 shrink-0 text-neutral-700 dark:text-neutral-200 cursor-pointer ml-8"
+                          />
+                        </button>
+                        <div className="ml-1">{tweetComp.commentCount}</div>
+                        
+                        {tweetComp.owner._id === user?._id ? (
+                          <Trash2 className="h-4 w-4 shrink-0 text-neutral-700 dark:text-neutral-200 cursor-pointer ml-8" />
+                        ) : null}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="overflow-y-auto p-2 max-h-[calc(50vh-2rem)]">
               <h1 className="font-bold text-lg text-black dark:text-white text-center pb-3 border-b-2 border-b-black dark:border-b-gray-600 sticky top-0 bg-transparent backdrop-blur-sm z-10">Suggested Users</h1>
-              {backendUser.map((userComp, idx) => (
+              {suggestedUser.data?.map((userComp, idx) => (
                 <Card
                   className="w-full p-4 border-b-1 border-b-black dark:border-b-neutral-700 rounded-none"
                   key={idx}

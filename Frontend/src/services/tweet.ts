@@ -1,40 +1,28 @@
+import { likedTweet, trending, tweet, userTweets } from "@/Interfaces/tweet.interface";
 import { TweetSchema } from "@/schemas/tweetSchema";
-import axios from "axios";
 import { z } from "zod";
+import api from "./axios";
 
-const getUserTweets = async (userId: string) => {
-  const res = await axios.get(
-    `${import.meta.env.VITE_BACKEND_URL}/tweets/${userId}`,
+const getUserTweets = async (userId: string, {pageParam = 1}): Promise<userTweets[]> => {
+  const res = await api.get(
+    `/tweets/user?userId=${userId}&page=${pageParam}`,
     { withCredentials: true }
   );
-  return res;
+  return res.data.data;
 };
 
 const likeTweet = async (tweetId: string) => {
-  const res = await axios.post(
-    `${import.meta.env.VITE_BACKEND_URL}/likes/${tweetId}`,
+  const res = await api.post(
+    `/likes/${tweetId}`,
     {},
     { withCredentials: true }
   );
-  
-  try {
-    // Import and call the like notification function
-    const { likeNotification } = await import("./notification");
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-    if (user?._id) {
-      await likeNotification(tweetId, user._id);
-    }
-  } catch (error) {
-    console.error("Error sending like notification:", error);
-    // Continue execution even if notification fails
-  }
-  
   return res;
 };
 
 const dislikeTweet = async (tweetId: string) => {
-  const res = await axios.post(
-    `${import.meta.env.VITE_BACKEND_URL}/likes/dislike/${tweetId}`,
+  const res = await api.post(
+    `/likes/dislike/${tweetId}`,
     {},
     { withCredentials: true }
   );
@@ -42,16 +30,16 @@ const dislikeTweet = async (tweetId: string) => {
 };
 
 const getTweetById = async (tweetId: string) => {
-  const res = axios.get(
-    `${import.meta.env.VITE_BACKEND_URL}/tweets/tweet/${tweetId}`,
+  const res = api.get(
+    `/tweets/tweet/${tweetId}`,
     { withCredentials: true }
   );
   return res;
 };
 
 const postComment = async (tweetId: string | undefined, content: string) => {
-  const res = axios.post(
-    `${import.meta.env.VITE_BACKEND_URL}/comments/post?tweetId=${tweetId}`,
+  const res = api.post(
+    `/comments/post?tweetId=${tweetId}`,
     { content },
     { withCredentials: true }
   );
@@ -74,16 +62,16 @@ const postComment = async (tweetId: string | undefined, content: string) => {
 };
 
 const allCommentsOnAPost = async (tweetId: string | undefined) => {
-  const res = axios.get(
-    `${import.meta.env.VITE_BACKEND_URL}/comments/get?tweetId=${tweetId}`,
+  const res = api.get(
+    `/comments/get?tweetId=${tweetId}`,
     { withCredentials: true }
   );
   return res;
 };
 
 const likeComment = async (commentId: string | undefined) => {
-  const res = axios.post(
-    `${import.meta.env.VITE_BACKEND_URL}/likes/comment/${commentId}`,
+  const res = api.post(
+    `/likes/comment/${commentId}`,
     {},
     { withCredentials: true }
   );
@@ -91,8 +79,8 @@ const likeComment = async (commentId: string | undefined) => {
 };
 
 const dislikeComment = async (commentId: string | undefined) => {
-  const res = axios.post(
-    `${import.meta.env.VITE_BACKEND_URL}/likes/comment/dislike/${commentId}`,
+  const res = api.post(
+    `/likes/comment/dislike/${commentId}`,
     {},
     { withCredentials: true }
   );
@@ -100,7 +88,7 @@ const dislikeComment = async (commentId: string | undefined) => {
 };
 
 const deleteComment = async (commentId: string) => {
-  const res = axios.delete(
+  const res = api.delete(
     `${
       import.meta.env.VITE_BACKEND_URL
     }/comments/delete?commentId=${commentId}`,
@@ -110,26 +98,26 @@ const deleteComment = async (commentId: string) => {
 };
 
 const deleteTweet = async (tweetId: string | undefined) => {
-  const res = axios.delete(
-    `${import.meta.env.VITE_BACKEND_URL}/tweets/delete/${tweetId}`,
+  const res = api.delete(
+    `/tweets/delete/${tweetId}`,
     { withCredentials: true }
   );
   return res;
 };
 
-const getLikedTweets = async (userId: string | undefined) => {
-  const res = axios.get(
-    `${import.meta.env.VITE_BACKEND_URL}/likes/likedTweets?userId=${userId}`,
+const getLikedTweets = async (userId: string | undefined, { pageParam = 1 }): Promise<likedTweet[]> => {
+  const res = await api.get(
+    `/likes/likedTweets?userId=${userId}&page=${pageParam}`,
     { withCredentials: true }
   );
-  return res;
+  return res.data.data;
 };
 
-const trendingTweets = async () => {
-  const res = axios.get(`${import.meta.env.VITE_BACKEND_URL}/tweets/get/tweet/trending`, {
+const trendingTweets = async (): Promise<trending[]> => {
+  const res = await api.get(`/tweets/get/tweet/trending`, {
     withCredentials: true,
   });
-  return res;
+  return res.data.data;
 };
 
 const createTweet = async (data:z.infer<typeof TweetSchema>) => {
@@ -137,8 +125,8 @@ const createTweet = async (data:z.infer<typeof TweetSchema>) => {
 
   // Ensure content is properly handled for emojis
   if(!media) {
-    const res = await axios.post(
-      `${import.meta.env.VITE_BACKEND_URL}/tweets/create`, 
+    const res = await api.post(
+      `/tweets/create`, 
       {content}, 
       {withCredentials: true}
     )
@@ -149,7 +137,7 @@ const createTweet = async (data:z.infer<typeof TweetSchema>) => {
   formData.append("content", content)
   formData.append("media", media)
 
-  const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/tweets/create`, formData, {
+  const res = await api.post(`/tweets/create`, formData, {
       withCredentials: true,
       headers: { "Content-Type": "multipart/form-data" }
     }
@@ -158,9 +146,9 @@ const createTweet = async (data:z.infer<typeof TweetSchema>) => {
   return res
 }
 
-const getAllTweets = async (page: number) => {
-  const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/tweets?page=${page}`, {withCredentials: true})
-  return res
+const getAllTweets = async ({pageParam = 1}): Promise<tweet[]> => {
+  const res = await api.get(`/tweets?page=${pageParam}`, {withCredentials: true})
+  return res.data.data
 }
 
 export {

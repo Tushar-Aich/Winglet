@@ -105,11 +105,18 @@ const dislikeComment = AsyncHandler(async(req: Request, res: Response) => {
 })
 
 const allLiked = AsyncHandler(async(req: Request, res: Response) => {
-    const {userId} = req.query
+    const {userId, page = 1, limit = 10} = req.query
 
     const user = await UserModel.findById(userId).select("-password -refreshToken")
     if(!user) throw new ApiError(404, "User not found");
 
+    const pageNum = parseInt(page as string); //page number
+    const limitNum = parseInt(limit as string); //number of tweets sent at once
+
+    if (!Number.isInteger(pageNum) || !Number.isInteger(limitNum))
+      throw new ApiError(400, "Invalid queries passed");
+
+    const skip = (pageNum - 1) * limitNum; //Number of tweets to be skipped
     const likedTweets = await LikeModel.aggregate([
         {
             $match: {
@@ -194,16 +201,22 @@ const allLiked = AsyncHandler(async(req: Request, res: Response) => {
             }
         },
         {
+            $addFields: {
+                LikedTweet: {
+                    $first: "$LikedTweets"
+                }
+            }
+        },
+        {
             $project: {
-                LikedTweets: 1
+                LikedTweet: 1
             }
         }
-    ])
+    ]).skip(skip).limit(limitNum);
 
     if(!likedTweets) throw new ApiError(400, "Something went wrong while getting tweets");
-    return res.status(200).json(new ApiResponse(200, likedTweets.map((item) => ({
-        likedTweets: item.LikedTweets
-      })), "Tweets Fetched Successfully"))
+
+    return res.status(200).json(new ApiResponse(200, likedTweets, "Tweets Fetched Successfully"))
 })
 
 export {likeTweet, dislikeTweet, likeComment, dislikeComment, allLiked}

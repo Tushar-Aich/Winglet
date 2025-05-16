@@ -9,6 +9,7 @@ import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { persistor, store } from "./store/store.ts";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 
 const App = React.lazy(() => import("./App.tsx"))
 const SignIn = React.lazy(() => import("./pages/Sign-in.tsx"))
@@ -77,6 +78,7 @@ function render() {
               <Suspense fallback={<div>loading...</div>}>
                 <Sonner />
                 <RouterProvider router={routes} />
+                <ReactQueryDevtools initialIsOpen={false} position={"right"} />
               </Suspense>
             </ThemeProvider>
           </QueryClientProvider>

@@ -1,10 +1,15 @@
-import { dislikeTweet, getUserTweets, likeTweet } from "@/services/tweet";
+import { Button } from "@/components/ui/button";
+import { useGetUserTweets } from "@/Hooks/useInfiniteQuery";
+import { useDisikeTweet, useLikeTweet } from "@/Hooks/useLikeTweet";
+import { likeNotification } from "@/services/notification";
 import { RootState } from "@/store/store";
 import { IconBubble } from "@tabler/icons-react";
-import { Heart, Trash2 } from "lucide-react";
-import { JSX, useEffect, useState } from "react";
+import { Heart, Loader2, Trash2 } from "lucide-react";
+import { JSX, useEffect } from "react";
+import { useInView } from "react-intersection-observer";
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
 
 type tweet = {
   User: {
@@ -24,13 +29,40 @@ type tweet = {
 
 const UserChats = () => {
   const { userId } = useParams();
-  const [tweet, setTweet] = useState<tweet[]>([]);
   const navigate = useNavigate();
   const user = useSelector((state: RootState) => state.user?.user);
 
   const formatDate = (date: string) => {
     return date.split("T")[0];
   };
+
+  const { ref, inView } = useInView({
+    threshold: 0.5,
+    rootMargin: '0px 0px 200px 0px'
+  })
+
+  const { 
+      data, 
+      fetchNextPage, 
+      hasNextPage, 
+      isFetchingNextPage, 
+      isLoading,
+      isError,
+      error,
+      refetch
+    } = useGetUserTweets(userId as string)
+
+  const tweets = data?.pages.flat() as tweet[] || []
+
+  const tweetLikeMutation = useLikeTweet()
+  
+  const tweetDislikeMutation = useDisikeTweet()
+
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage()
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage])
 
   const parseMentions = (
     content: string,
@@ -58,31 +90,41 @@ const UserChats = () => {
   };
 
   const handleTweetLike = async (tweetId: string) => {
-    await likeTweet(tweetId);
-    const res = await getUserTweets(userId as string);
-    console.log(res.data?.data);
-    setTweet(res.data?.data);
-  };
-  
+    tweetLikeMutation.mutate(tweetId, {
+      onSuccess: async () => {
+        // Optimistic UI updates are handled by React Query refetch
+        refetch()
+
+        if(user?._id !== undefined) {
+          const userId = user?._id as string
+          await likeNotification(userId, tweetId)
+        }
+      },
+      onError: (error: any) => {
+        toast(error.message || "Error liking tweet", {
+          description: "Please try again"
+        })
+      }
+    })
+  }
+
   const handleTweetDislike = async (tweetId: string) => {
-    await dislikeTweet(tweetId);
-    const res = await getUserTweets(userId as string);
-    console.log(res.data?.data);
-    setTweet(res.data?.data);
-  };
+    tweetDislikeMutation.mutate(tweetId, {
+      onSuccess: async () => {
+        refetch()
+      },
+      onError: (error: any) => {
+        toast(error.message || "Error disliking tweet", {
+          description: "Please try again",
+        })
+      }
+    })
+  }
 
-  useEffect(() => {
-    (async () => {
-      const res = await getUserTweets(userId as string);
-      console.log(res.data?.data);
-      setTweet(res.data?.data);
-    })();
 
-    return () => setTweet([]);
-  }, [userId]);
   return (
     <div className="w-full">
-      {tweet.map((tweetComp, idx) => (
+      {tweets.map((tweetComp, idx) => (
         <div
           className="w-full p-4 border-b-1 border-black dark:border-neutral-700"
           key={idx}
@@ -136,6 +178,58 @@ const UserChats = () => {
           </div>
         </div>
       ))}
+
+      {/* Loading State */}
+        {isLoading && (
+          <div className="flex justify-center p-4">
+            <Loader2 className="h-6 w-6 animate-spin" />
+          </div>
+        )}
+        
+        {/* Infinite Scroll Loader - This is where the intersection observer is attached */}
+        {!isLoading && hasNextPage && (
+          <div 
+            ref={ref} 
+            className="flex justify-center p-4"
+          >
+            {isFetchingNextPage ? (
+              <Loader2 className="h-6 w-6 animate-spin" />
+            ) : (
+              <p className="text-sm text-muted-foreground">Scroll for more</p>
+            )}
+          </div>
+        )}
+        
+        {/* No More Tweets Message */}
+        {!hasNextPage && tweets.length > 0 && (
+          <div className="text-center p-4 text-muted-foreground">
+            No more tweets to load
+          </div>
+        )}
+        
+        {/* Empty State */}
+        {!isLoading && tweets.length === 0 && !isError && (
+          <div className="text-center p-8">
+            <p className="text-lg font-medium">No tweets yet</p>
+            <p className="text-muted-foreground mt-1">Be the first to share something!</p>
+          </div>
+        )}
+        
+        {/* Error State */}
+        {isError && (
+          <div className="text-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg mx-4">
+            <p className="text-red-600 dark:text-red-400 font-medium">
+              Error loading tweets: {(error as Error)?.message || "Something went wrong"}
+            </p>
+            <Button 
+              variant="outline" 
+              onClick={() => refetch()}
+              className="mt-2"
+            >
+              Try Again
+            </Button>
+          </div>
+        )}
     </div>
   );
 };

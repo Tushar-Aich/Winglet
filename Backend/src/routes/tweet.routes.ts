@@ -15,7 +15,7 @@ router.route("/create").post(
     ]),
     createTweet
 )
-router.route("/:userId").get(getUserTweets)
+router.route("/user").get(getUserTweets)
 router.route("/tweet/:tweetId").get(getTweetById)
 router.route("/").get(getAllTweets)
 router.route("/get/tweet/trending").get(trendingTweets)

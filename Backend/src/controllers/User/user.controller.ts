@@ -575,7 +575,7 @@ const userDetails = AsyncHandler(async (req: Request, res: Response) => {
       $lookup: {
         from: 'follows',
         localField: '_id',
-        foreignField: 'follower',
+        foreignField: 'following',
         as: 'followers'
       }
     },
@@ -583,7 +583,7 @@ const userDetails = AsyncHandler(async (req: Request, res: Response) => {
       $lookup: {
         from: 'follows',
         localField: '_id',
-        foreignField: 'following',
+        foreignField: 'follower',
         as: 'followings'
       }
     },
