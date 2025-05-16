@@ -3,7 +3,7 @@ import { RootState } from "@/store/store";
 import { IconBalloon } from "@tabler/icons-react";
 import { Calendar } from "lucide-react";
 import { useSelector } from "react-redux";
-import { NavLink, Outlet, useParams } from "react-router-dom";
+import { NavLink, Outlet, useNavigate, useParams } from "react-router-dom";
 
 
 const formatDate = (date: string | undefined) => {
@@ -14,6 +14,8 @@ const formatDate = (date: string | undefined) => {
 const Profile = () => {
   const { userId } = useParams();
   const rootUser = useSelector((state: RootState) => state.user.user);
+
+  const navigate = useNavigate()
 
   const navLinks= [
     {
@@ -55,7 +57,10 @@ const Profile = () => {
       </div>
       <div className="relative mt-3">
       {userId === rootUser?._id ? (
-        <button className="px-4 py-1 rounded-full border-2 border-black dark:border-white absolute right-4 text-black dark:text-gray-300 cursor-pointer">
+        <button
+          className="px-4 py-1 rounded-full border-2 border-black dark:border-white absolute right-4 text-black dark:text-gray-300 cursor-pointer"
+          onClick={() => navigate("/update/avatar")}
+        >
         Edit Profile
         </button>
       ) : (

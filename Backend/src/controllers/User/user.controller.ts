@@ -388,13 +388,6 @@ const changePassword = AsyncHandler(async (req: Request, res: Response) => {
     .json(new ApiResponse(200, updatedUser, "Password successfully changed"));
 });
 
-const getCurrentUser = AsyncHandler(async (req: Request, res: Response) => {
-  console.log(req.user as IUser);
-  return res
-    .status(200)
-    .json(new ApiResponse(200, req.user as IUser, "User Fetched successfully"));
-});
-
 const updateAvatar = AsyncHandler(async (req: Request, res: Response) => {
   const url = (req.user as IUser)?.avatar;
   if (!url) throw new ApiError(500, "Internal server Error");
@@ -749,23 +742,22 @@ const saveFCM = AsyncHandler(async (req: Request, res: Response) => {
 })
 
 export {
-  sendMail,
-  verifyOTP,
-  signUp,
-  login,
-  refreshAccessToken,
-  logout,
-  forgotPasswordEmail,
-  forgotPasswordOtpVerification,
-  changePassword,
-  getCurrentUser,
-  updateAvatar,
-  updateCoverImage,
-  addBio,
-  addBirthDate,
-  deleteAcc,
-  userDetails,
-  suggestedUsers,
-  searchUser,
-  saveFCM
+  sendMail,      //done
+  verifyOTP,      //done
+  signUp,      //done   
+  login,      //done   
+  refreshAccessToken,      //    
+  logout,      //    
+  forgotPasswordEmail,      //    
+  forgotPasswordOtpVerification,      //    
+  changePassword,      //  
+  updateAvatar,      //    
+  updateCoverImage,      //    
+  addBio,      //    
+  addBirthDate,      //    
+  deleteAcc,      //    
+  userDetails,      //done  
+  suggestedUsers,      //done   
+  searchUser,      //done   
+  saveFCM      //done
 };

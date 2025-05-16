@@ -4,6 +4,7 @@ import { SignUpSchema } from "@/schemas/signUpSchema";
 import { z } from "zod";
 import api from "./axios";
 import { emailResponse, FCMTokenResponse, GetUserResponse, LoginResponse, OTPresponse, SearchUser, SignUpResponse, SuggestedUser } from "@/Interfaces";
+import { AvatarSchema } from "@/schemas/avatarSchema";
 
 
 export const login = async (email: string, password: string): Promise<LoginResponse> => {
@@ -73,5 +74,14 @@ export const searchUser = async (search: string): Promise<SearchUser[]> => {
 
 export const saveFCM = async (token: string): Promise<FCMTokenResponse> => {
   const res = await api.post(`/users/save-token`,{token}, { withCredentials: true })
+  return res.data.data
+}
+
+export const updateAvatar = async (data: z.infer<typeof AvatarSchema>) => {
+  const { avatar } = data
+  const formData = new FormData()
+  formData.append('avatar', avatar)
+  
+  const res = await api.post(`/users/update-avatar`, formData, { withCredentials: true })
   return res.data.data
 }

@@ -25,6 +25,10 @@ const Tweets = React.lazy(() => import("./pages/Tweets.tsx"))
 const VerifyOTP = React.lazy(() => import("./pages/VerifyOTP.tsx"))
 const UserLikes = React.lazy(() => import("./pages/UserLikes.tsx"))
 const Search = React.lazy(() => import("./pages/search.tsx"))
+const Update = React.lazy(() => import("./pages/Update.tsx"))
+const Avatar = React.lazy(() => import("./pages/UpdateAvatar.tsx"))
+
+
 const routes = createBrowserRouter([
   {
     path: "/home",
@@ -50,6 +54,11 @@ const routes = createBrowserRouter([
     element: <Protection2 />,
     children: [{ path: "/sign-up", element: <SignUp /> }],
   },
+  {
+    path: "/update", element: <Update />, children: [
+      { path: "/update/avatar", element: <Avatar /> }
+    ]
+  }
 ]);
 
 const queryClient = new QueryClient()

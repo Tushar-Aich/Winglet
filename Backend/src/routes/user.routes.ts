@@ -10,7 +10,6 @@ import {
   forgotPasswordOtpVerification,
   changePassword,
   updateAvatar,
-  getCurrentUser,
   updateCoverImage,
   addBio,
   addBirthDate,
@@ -73,8 +72,6 @@ router.route("/update-cover-image").post(
   ]),
   updateCoverImage
 );
-
-router.route("/current-user").get(verifyJWT, getCurrentUser);
 
 router.route("/delete").delete(verifyJWT, deleteAcc);
 
