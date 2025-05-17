@@ -4,7 +4,7 @@ import { SignUpSchema } from "@/schemas/signUpSchema";
 import { z } from "zod";
 import api from "./axios";
 import { emailResponse, FCMTokenResponse, GetUserResponse, LoginResponse, OTPresponse, SearchUser, SignUpResponse, SuggestedUser } from "@/Interfaces";
-import { AvatarSchema } from "@/schemas/avatarSchema";
+import { AvatarSchema, CoverImageSchema } from "@/schemas/ImageSchema";
 
 
 export const login = async (email: string, password: string): Promise<LoginResponse> => {
@@ -82,6 +82,23 @@ export const updateAvatar = async (data: z.infer<typeof AvatarSchema>) => {
   const formData = new FormData()
   formData.append('avatar', avatar)
   
-  const res = await api.post(`/users/update-avatar`, formData, { withCredentials: true })
+  const res = await api.post(`/users/update-avatar`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    withCredentials: true
+  })
+  return res.data.data
+}
+
+export const updateCoverImage = async (data: z.infer<typeof CoverImageSchema>) => {
+  const { coverImage } = data
+  const formData = new FormData()
+  formData.append('coverImage', coverImage)
+
+  const res = await api.post('/users/update-cover-image', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+  return res.data.data
+}
+
+export const updateBio = async (bio: string) => {
+  const res = await api.post('/users/add-bio', {  bio }, { headers: { 'Content-Type': 'application/json' } })
   return res.data.data
 }

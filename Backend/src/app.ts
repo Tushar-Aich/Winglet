@@ -3,6 +3,9 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser'
 import logger from './logger.js';
 import morgan from 'morgan';
+import dotenv from 'dotenv';
+
+dotenv.config()
 
 const app = express();
 
@@ -25,7 +28,7 @@ app.use(morgan(morganFormat, {
 app.use(
     cors({
         origin: process.env.CORS_ORIGIN,
-        credentials: true
+        credentials: true,
     })
 );
 

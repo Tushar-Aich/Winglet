@@ -10,6 +10,7 @@ import { useSuggestedUsers, useTrending } from "@/Hooks/useQueries";
 import { useDisikeTweet, useLikeTweet } from "@/Hooks/useLikeTweet";
 import { toast } from "sonner";
 import { QueryClient } from "@tanstack/react-query";
+import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 
 
 const Container = ({children}: {children: React.ReactNode}) => {
@@ -130,11 +131,22 @@ const Container = ({children}: {children: React.ReactNode}) => {
                         {parseMentions(tweetComp.content, tweetComp.mentions)}
                       </div>
                       {tweetComp.media && tweetComp.media.length > 0 ? (
-                        <img
-                          src={tweetComp.media}
-                          alt=""
-                          className="h-64 w-full object-cover mt-2 rounded-lg"
-                        />
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <img
+                              src={tweetComp.media}
+                              alt=""
+                              className="h-64 w-full object-cover mt-2 rounded-lg cursor-pointer"
+                            />
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-[80vw] max-h-[80vh] p-1 bg-transparent backdrop-blur-sm border-2 border-muted-foreground">
+                            <img
+                              src={tweetComp.media}
+                              alt="Tweet media"
+                              className="max-h-[calc(80vh-2rem)] w-auto mx-auto object-contain rounded-lg"
+                            />
+                          </DialogContent>
+                        </Dialog>
                       ) : null}
                       <div className="flex items-center mt-2">
                         {tweetComp.isLiked ? (

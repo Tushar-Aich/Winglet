@@ -2,16 +2,17 @@ import { cn } from "@/lib/utils";
 import React, { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { User } from "lucide-react";
+import { Image, User } from "lucide-react";
 import { Button } from "./ui/button";
 
 interface ImageUploads {
   value?: File;
   onChange: (file?: File) => void;
   error?: String;
+  name: String
 }
 
-const ImageUpload = ({ value, onChange, error }: ImageUploads) => {
+const ImageUpload = ({ value, onChange, error, name }: ImageUploads) => {
   const [preview, setPreview] = useState<string | null>(null);
 
   const onDrop = useCallback(
@@ -66,17 +67,18 @@ const ImageUpload = ({ value, onChange, error }: ImageUploads) => {
             )}
           >
             {preview ? (
-              <AvatarImage src={preview} />
+              <AvatarImage src={preview} className="object-cover"/>
             ) : (
               <AvatarFallback className="bg-muted">
-                <User className="h-12 w-12 text-muted-foreground" />
+                {name === "Avatar" ? (<User className="h-12 w-12 text-muted-foreground" />): undefined}
+                {name === "Cover Image" ? (<Image className="h-12 w-12 text-muted-foreground" />) : undefined}
               </AvatarFallback>
             )}
           </Avatar>
 
           <div className="text-center space-y-2">
             <p className="text-sm font-medium text-gray-700">
-              {preview ? "change Avatar" : "Upload Avatar"}
+              {preview ? `change ${name}` : `Upload ${name}`}
             </p>
             <p className="text-xs text-muted-foreground">
               Drag & Drop or Click to Browse

@@ -1,8 +1,8 @@
 import ImageUpload from "@/components/ImageUpload"
 import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form"
-import { useAvatarUpdate } from "@/Hooks/useUpdate"
-import { AvatarSchema } from "@/schemas/ImageSchema"
+import { useCoverImage } from "@/Hooks/useUpdate"
+import { CoverImageSchema } from "@/schemas/ImageSchema"
 import { RootState } from "@/store/store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { QueryClient } from "@tanstack/react-query"
@@ -13,12 +13,12 @@ import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 import { z } from "zod"
 
-const UpdateAvatar = () => {
-  const form = useForm<z.infer<typeof AvatarSchema>>({
-      resolver: zodResolver(AvatarSchema)
+const UpdateCoverImage = () => {
+  const form = useForm<z.infer<typeof CoverImageSchema>>({
+      resolver: zodResolver(CoverImageSchema)
   })
 
-  const updateAvatarMutation = useAvatarUpdate()
+  const updateCoverImageMutation = useCoverImage()
 
   const rootUser = useSelector((state: RootState) => state.user.user);
 
@@ -28,23 +28,20 @@ const UpdateAvatar = () => {
 
   const userId = rootUser?._id!
   
-  const HandleSubmit = (data: z.infer<typeof AvatarSchema>) => {
-    updateAvatarMutation.mutate(data, {
+  const HandleSubmit = (data: z.infer<typeof CoverImageSchema>) => {
+    console.log(data)
+    updateCoverImageMutation.mutate(data, {
       onSuccess: () => {
-        toast("Avatar update successfully", {
+        toast("Cover Image update successfully", {
           action: {
             label: "Go to profile",
             onClick: () => navigate(`/home/profile/${rootUser?._id}`)
           }
         })
         queryClient.invalidateQueries({ queryKey: ["user", { userId: userId }] })
-        queryClient.invalidateQueries({ queryKey: ["trending"] })
-        queryClient.invalidateQueries({ queryKey: ["suggested-users"] })
-        queryClient.invalidateQueries({ queryKey: ["user-tweets", { userId: userId }] })
-        queryClient.invalidateQueries({ queryKey: ['posts'] })
       },
       onError: () => {
-        toast("Error updating Avatar", {
+        toast("Error updating Cover Image", {
           description: "Please try again."
         })
       }
@@ -57,22 +54,22 @@ const UpdateAvatar = () => {
             <form onSubmit={form.handleSubmit(HandleSubmit)} className="space-y-6 flex flex-col justify-center">
                 <FormField 
                   control={form.control}
-                  name="avatar"
+                  name="coverImage"
                   render={({field}) => (
                     <FormItem className="flex flex-col items-center">
                       <FormControl>
                         <ImageUpload 
                           value={field.value}
                           onChange={field.onChange}
-                          error={form.formState.errors.avatar?.message?.toString()}
-                          name="Avatar"
+                          error={form.formState.errors.coverImage?.message?.toString()}
+                          name="Cover Image"
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                {updateAvatarMutation.isPending ? (
+                {updateCoverImageMutation.isPending ? (
                   <Button
                     type="submit"
                     disabled
@@ -89,4 +86,4 @@ const UpdateAvatar = () => {
   )
 }
 
-export default UpdateAvatar
+export default UpdateCoverImage

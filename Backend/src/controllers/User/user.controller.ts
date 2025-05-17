@@ -429,7 +429,6 @@ const updateAvatar = AsyncHandler(async (req: Request, res: Response) => {
 
 const updateCoverImage = AsyncHandler(async (req: Request, res: Response) => {
   const url = (req.user as IUser)?.coverImage;
-  if (!url) throw new ApiError(500, "Internal server Error");
 
   let coverImageLocalPath;
   if (
@@ -464,7 +463,7 @@ const updateCoverImage = AsyncHandler(async (req: Request, res: Response) => {
   if (!updatedUser)
     throw new ApiError(400, "Updating avatar in database failed");
 
-  await deleteFile(url as string);
+  if(url) await deleteFile(url as string);
 
   return res
     .status(200)
