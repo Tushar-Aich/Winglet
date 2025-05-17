@@ -1,5 +1,5 @@
 import { AvatarSchema, CoverImageSchema } from "@/schemas/ImageSchema";
-import { updateAvatar, updateBio, updateCoverImage } from "@/services/auth";
+import { updateAvatar, updateBio, updateBirthDate, updateCoverImage } from "@/services/auth";
 import { useMutation } from "@tanstack/react-query";
 import { z } from "zod";
 import * as Sentry from "@sentry/react"
@@ -27,6 +27,15 @@ export const useCoverImage = () => {
 export const useUpdateBio = () => {
     return useMutation({
         mutationFn: (bio: string) => updateBio(bio),
+        onError: (error: any) => {
+            Sentry.captureException(error)
+        }
+    })
+}
+
+export const useUpdateBirthDate = () => {
+    return useMutation({
+        mutationFn: (birthDate: string) => updateBirthDate(birthDate),
         onError: (error: any) => {
             Sentry.captureException(error)
         }

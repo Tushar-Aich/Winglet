@@ -102,3 +102,9 @@ export const updateBio = async (bio: string) => {
   const res = await api.post('/users/add-bio', {  bio }, { headers: { 'Content-Type': 'application/json' } })
   return res.data.data
 }
+
+export const updateBirthDate = async (birthDate: string) => {
+  console.log(birthDate)
+  const res = await api.post("/users/add-birth-date", { birthDate }, { headers: { 'Content-Type': 'application/json' } })
+  return res.data.data
+}

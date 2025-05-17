@@ -205,7 +205,7 @@ function App() {
                 <NavigationMenuLink
                   className={`${navigationMenuTriggerStyle()} bg-transparent hover:bg-transparent p-2`}
                 >
-                  <div className="scale-125">
+                  <div  className="mt-1">
                     <NotificationBell />
                   </div>
                 </NavigationMenuLink>

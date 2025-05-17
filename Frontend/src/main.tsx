@@ -29,6 +29,7 @@ const Update = React.lazy(() => import("./pages/Update.tsx"))
 const Avatar = React.lazy(() => import("./pages/UpdateAvatar.tsx"))
 const CoverImage = React.lazy(() => import ("./pages/UpdateCoverImage.tsx"))
 const Bio = React.lazy(() => import("./pages/updateBio.tsx"))
+const BirthDate = React.lazy(() => import("./pages/BirthDate.tsx"))
 
 
 const routes = createBrowserRouter([
@@ -60,7 +61,8 @@ const routes = createBrowserRouter([
     path: "/update", element: <Update />, children: [
       { path: "/update/avatar", element: <Avatar /> },
       { path: "/update/coverImage", element: <CoverImage /> },
-      { path: "/update/bio", element: <Bio /> }
+      { path: "/update/bio", element: <Bio /> },
+      { path: "/update/birth-date", element: <BirthDate /> }
     ]
   }
 ]);

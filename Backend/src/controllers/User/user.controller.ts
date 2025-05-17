@@ -506,6 +506,7 @@ const addBio = AsyncHandler(async (req: Request, res: Response) => {
 
 const addBirthDate = AsyncHandler(async (req: Request, res: Response) => {
   const { birthDate } = req.body;
+  console.log(birthDate)
   if (!birthDate) throw new ApiError(400, "Birth Date is required");
 
   if ((req.user as IUser).birthDate) {
