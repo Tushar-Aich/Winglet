@@ -17,6 +17,7 @@ export interface IUser extends Document {
   refreshToken: String;
   isFirstLogin: Boolean;
   FCMtoken: String;
+  voiceId: String;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: String): Promise<Boolean>;
@@ -88,6 +89,9 @@ const UserSchema = new Schema<IUser>(
       default: false
     },
     FCMtoken: {
+      type: String
+    },
+    voiceId: {
       type: String
     }
   },
