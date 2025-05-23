@@ -21,6 +21,7 @@ const Protection2 = React.lazy(() => import("./components/Protection2.tsx"))
 const Home = React.lazy(() => import("./pages/Home.tsx"))
 const Profile = React.lazy(() => import("./pages/Profile.tsx"))
 const UserChats = React.lazy(() => import("./pages/UserChats.tsx"))
+const AITweetGeneratorPage = React.lazy(() => import("./pages/AITweetGeneratorPage.tsx"));
 const Tweets = React.lazy(() => import("./pages/Tweets.tsx"))
 const VerifyOTP = React.lazy(() => import("./pages/VerifyOTP.tsx"))
 const UserLikes = React.lazy(() => import("./pages/UserLikes.tsx"))

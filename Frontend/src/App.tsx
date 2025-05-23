@@ -1,6 +1,6 @@
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Bell, Home, Mail, Search, Bird, User2Icon } from "lucide-react";
+import { Bell, Home, Mail, Search, Bird, User2Icon, Sparkles } from "lucide-react"; // Add Sparkles
 import { useState, useEffect } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
 import { useSelector } from "react-redux";
@@ -117,6 +117,13 @@ function App() {
       href: "/home/inbox",
       icon: (
         <Mail className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+      ),
+    },
+    {
+      label: "AI Tweets",
+      href: "/home/ai-tweet-generator",
+      icon: (
+        <Sparkles className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
   ];
