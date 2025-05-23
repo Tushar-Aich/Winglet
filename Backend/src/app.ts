@@ -50,6 +50,7 @@ import CommentRouter from "./routes/comment.routes.js"
 import NotificationRouter from "./routes/notification.routes.js"
 import VoiceRouter from './routes/voice.routes.js'
 import aiRouter from './routes/ai.routes.js';
+import chatbotRouter from './routes/chatbot.routes.js';
 
 //router declaration
 app.use("/api/v1/users", UserRouter)
@@ -60,5 +61,6 @@ app.use("/api/v1/comments", CommentRouter)
 app.use("/api/v1/notifications", NotificationRouter)
 app.use('/api/v1/voice', VoiceRouter)
 app.use("/api/v1/ai", aiRouter);
+app.use("/api/v1/chatbot", chatbotRouter);
 
 export default app;
