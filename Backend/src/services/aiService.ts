@@ -12,13 +12,13 @@ dotenv.config();
 // Initialize Models
 const geminiEmbeddings = new GoogleGenerativeAIEmbeddings({
   apiKey: process.env.GEMINI_API_KEY,
-  model: "embedding-001", // Specified model for embeddings
+  model: "embedding-001",
 });
 
 const chatModel = new ChatGoogleGenerativeAI({
   apiKey: process.env.GEMINI_API_KEY,
-  modelName: "gemini-pro", // Specified model for chat
-  temperature: 0.7, // Specified temperature
+  model: "gemini-2.0-flash",
+  temperature: 0.7,
 });
 
 /**
@@ -52,8 +52,7 @@ async function generateTweetResponse(
     logger.info("Querying ChromaDB for relevant documents...");
     const results = await tweetCollection.query({
       queryEmbeddings: [queryEmbedding],
-      nResults: 5, // Number of relevant documents
-      include: ["documents"], // We need the original tweet text
+      nResults: 2,
     });
 
     const numResults = results.documents && results.documents[0] ? results.documents[0].length : 0;
@@ -97,8 +96,6 @@ async function generateTweetResponse(
 
   } catch (error) {
     logger.error("Error generating tweet response:", error);
-    // Depending on requirements, could return a generic error message or null
-    // For now, returning null as per the function's Promise type.
     return null; 
   }
 }

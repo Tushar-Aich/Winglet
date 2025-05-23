@@ -57,10 +57,10 @@ async function ingestTweets(): Promise<void> {
 
         try {
           const embedding = await geminiEmbeddings.embedQuery(tweetText as string); // Cast to string
-          ids.push(tweet._id.toString());
+          ids.push((tweet._id as string).toString());
           embeddingsArray.push(embedding);
           metadatas.push({
-            tweetId: tweet._id.toString(),
+            tweetId: (tweet._id as string).toString(),
             userId: tweet.owner?.toString(), // 'owner' field from the model
             createdAt: tweet.createdAt?.toISOString(), // 'createdAt' from timestamps
           });

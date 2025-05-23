@@ -1,24 +1,13 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import ChatbotModel from '../models/chatbot.model';
-import { asyncHandler } from '../utils/Asynchandler';
+import { AsyncHandler } from '../utils/Asynchandler';
 import { ApiError } from '../utils/ApiError';
 import { ApiResponse } from '../utils/ApiResponse';
 import logger from '../logger'; // Assuming logger is configured and available
+import { IUser } from '../models/user.model';
 
-// Define AuthenticatedRequest interface
-interface AuthenticatedRequest extends Request {
-  user?: {
-    _id: string;
-  };
-}
 
-/**
- * Saves a chat message to the database.
- * @param userId - The ID of the user.
- * @param prompt - The user's prompt.
- * @param response - The chatbot's response.
- */
 const saveChatMessage = async (userId: string, prompt: string, response: string): Promise<void> => {
   try {
     const newChatMessage = new ChatbotModel({
@@ -37,8 +26,9 @@ const saveChatMessage = async (userId: string, prompt: string, response: string)
 /**
  * Fetches the chat history for an authenticated user.
  */
-const getChatHistory = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const userId = req.user?._id;
+const getChatHistory = AsyncHandler(async (req: Request, res: Response) => {
+  const userId = (req.user as IUser)?._id; // Extract userId if available from auth middleware
+  logger.info(`Fetching chat history for userId: ${userId}`);
 
   if (!userId) {
     throw new ApiError(401, 'User not authenticated');
