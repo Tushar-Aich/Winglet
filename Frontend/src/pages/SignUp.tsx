@@ -94,6 +94,7 @@ const SignUp = () => {
                       value={field.value}
                       onChange={field.onChange}
                       error={form.formState.errors.avatar?.message?.toString()}
+                      name="Avatar"
                     />
                   </FormControl>
                   <FormMessage />

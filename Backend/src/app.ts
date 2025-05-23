@@ -4,8 +4,10 @@ import cookieParser from 'cookie-parser'
 import logger from './logger.js';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
+import ffmpeg from 'fluent-ffmpeg';
 
 dotenv.config()
+ffmpeg.setFfmpegPath(process.env.FFMPEG_PATH! || '/usr/bin/ffmpeg');
 
 const app = express();
 

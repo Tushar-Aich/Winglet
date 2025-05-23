@@ -30,6 +30,7 @@ const Avatar = React.lazy(() => import("./pages/UpdateAvatar.tsx"))
 const CoverImage = React.lazy(() => import ("./pages/UpdateCoverImage.tsx"))
 const Bio = React.lazy(() => import("./pages/updateBio.tsx"))
 const BirthDate = React.lazy(() => import("./pages/BirthDate.tsx"))
+// const VoiceClone = React.lazy(() => import("./pages/voiceClone.tsx"))
 
 
 const routes = createBrowserRouter([
@@ -57,6 +58,7 @@ const routes = createBrowserRouter([
     element: <Protection2 />,
     children: [{ path: "/sign-up", element: <SignUp /> }],
   },
+  // { path: "/voice-clone", element: <VoiceClone /> },
   {
     path: "/update", element: <Update />, children: [
       { path: "/update/avatar", element: <Avatar /> },

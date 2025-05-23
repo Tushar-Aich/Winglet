@@ -3,8 +3,9 @@ import { useGetUserTweets } from "@/Hooks/useInfiniteQuery";
 import { useDisikeTweet, useLikeTweet } from "@/Hooks/useLikeTweet";
 import { likeNotification } from "@/services/notification";
 import { RootState } from "@/store/store";
+import { Dialog, DialogClose, DialogContent, DialogTrigger } from "@radix-ui/react-dialog";
 import { IconBubble } from "@tabler/icons-react";
-import { Heart, Loader2, Trash2 } from "lucide-react";
+import { Heart, Loader2, Trash2, X } from "lucide-react";
 import { JSX, useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import { useSelector } from "react-redux";
@@ -148,11 +149,25 @@ const UserChats = () => {
             {parseMentions(tweetComp.content, tweetComp.mentions)}
           </div>
           {tweetComp.media ? (
-            <img
-              src={tweetComp.media}
-              alt=""
-              className="h-64 w-full object-cover mt-2 rounded-lg"
-            />
+            <Dialog>
+              <DialogTrigger asChild>
+                <img
+                  src={tweetComp.media}
+                  alt=""
+                  className="h-64 w-full object-cover mt-2 rounded-lg cursor-pointer"
+                />
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[80vw] max-h-[80vh] absolute top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%] bg-transparent backdrop-blur-sm border-2 border-muted-foreground px-44 py-3 z-40">
+                <DialogClose className="absolute right-2">
+                  <X className="h-5 w-5 text-muted-foreground" />
+                </DialogClose>
+                <img
+                  src={tweetComp.media}
+                  alt="Tweet media"
+                  className="max-h-[calc(80vh-2rem)] w-auto mx-auto object-contain rounded-lg"
+                />
+              </DialogContent>
+            </Dialog>
           ) : null}
           <div className="flex items-center mt-2">
             {tweetComp.isLiked ? (
