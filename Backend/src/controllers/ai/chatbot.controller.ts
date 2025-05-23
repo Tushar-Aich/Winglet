@@ -4,6 +4,7 @@ import { ApiError } from '../../utils/ApiError'; // Adjusted path
 import { ApiResponse } from '../../utils/ApiResponse'; // Adjusted path
 import { generateTweetResponse } from '../../services/aiService';
 import logger from '../../logger'; // Adjusted path
+import { saveChatMessage } from '../chatbot.controller'; // Import saveChatMessage
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -25,6 +26,16 @@ const handleGenerateTweet = asyncHandler(async (req: AuthenticatedRequest, res: 
 
   if (!generatedTweet) {
     throw new ApiError(500, 'Failed to generate tweet content at this time. Please try again later.');
+  }
+
+  if (userId && generatedTweet) {
+    try {
+      await saveChatMessage(userId, prompt.trim(), generatedTweet);
+      logger.info(`Chat history saved successfully for userId: ${userId} in handleGenerateTweet`);
+    } catch (error) {
+      // Log the error, but don't let it interrupt the response to the user
+      logger.error(`Failed to save chat history for userId: ${userId} in handleGenerateTweet`, error);
+    }
   }
 
   return res
