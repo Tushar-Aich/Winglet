@@ -15,30 +15,42 @@ interface User {
     isFirstLogin: Boolean;
 }
 
+interface LoginData {
+    user: User;
+    accessToken: string;
+}
+
 interface UserState {
-    user: User | null
-    status: Boolean
+    user: User | null;
+    status: Boolean;
+    token: string | null;
 }
 
 const initialState: UserState = {
     user: null,
-    status: false
+    status: false,
+    token: null
 }
 
 const userSlice = createSlice({
     name: "user",
     initialState,
     reducers: {
-        storeLogin: (state, action: PayloadAction<User>) => {
-            state.status = true
-            state.user = action.payload
+        storeLogin: (state, action: PayloadAction<LoginData>) => {
+            state.status = true;
+            state.user = action.payload.user;
+            state.token = action.payload.accessToken;
         },
         storeLogout: (state) => {
-            state.status = false
-            state.user = null
+            state.status = false;
+            state.user = null;
+            state.token = null;
+        },
+        updateToken: (state, action: PayloadAction<string>) => {
+            state.token = action.payload;
         }
     }
 })
 
-export const { storeLogin, storeLogout } = userSlice.actions
+export const { storeLogin, storeLogout, updateToken } = userSlice.actions
 export default userSlice.reducer

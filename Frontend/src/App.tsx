@@ -22,6 +22,7 @@ import { onMessage } from "firebase/messaging";
 import { messaging } from "./config/firebaseConfig";
 
 function App() {
+
   const user = useSelector((state: RootState) => state.user.user);
   const navigate = useNavigate()
   
@@ -210,8 +211,8 @@ function App() {
                   </div>
                 </NavigationMenuLink>
               </NavigationMenuItem>
-              {Mobilelinks.slice(3).map((link, idx) => (
-                <NavigationMenuItem key={idx + 3}>
+              {Mobilelinks.slice(2).map((link, idx) => (
+                <NavigationMenuItem key={idx + 2}>
                   <Link to={link.href} aria-label={`go to ${link.label} page`}>
                     <NavigationMenuLink
                       className={`${navigationMenuTriggerStyle()} bg-transparent hover:bg-transparent`}

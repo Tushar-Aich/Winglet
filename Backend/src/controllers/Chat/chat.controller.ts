@@ -139,4 +139,25 @@ const getUsers = AsyncHandler(async (req: Request, res: Response) => {
     return res.status(200).json(new ApiResponse(200, filteredUsers, "Users fetched successfully for sidebar"))
 })
 
-export { getUsers }
+const getMessages = AsyncHandler(async (req: Request, res: Response) => {
+    const { id:userToChatId, page = 1 } = req.query
+    const limit = 10
+    const pageNum = parseInt(page as string);
+
+    const myId = (req.user as IUser)?._id
+
+    if (!Number.isInteger(pageNum)) throw new ApiError(400, "Invalid queries passed");
+
+    const skip = (pageNum - 1) * limit;
+
+    const messages = await MessageModel.find({
+        $or: [
+            {sender: myId, receipent: userToChatId},
+            {sender: userToChatId, receipent: myId}
+        ]
+    }).skip(skip).limit(limit).sort({"createdAt": 1})
+
+    res.status(200).json(new ApiResponse(200, messages, "Messages fetched successfully"))
+})
+
+export { getUsers, getMessages }

@@ -45,7 +45,10 @@ const SignIn = () => {
             onClick: () => console.log("dismiss"),
           },
         });
-        dispatch(storeLogin(res.user));
+        dispatch(storeLogin({
+          user: res.user,
+          accessToken: res.accessToken
+        }));
         navigate("/home");
       },
       onError: (error: any) => {

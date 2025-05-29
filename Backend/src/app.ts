@@ -5,11 +5,13 @@ import logger from './logger.js';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import ffmpeg from 'fluent-ffmpeg';
+import http from 'http'
+import { setupSocketIO } from './services/socket.service.js';
 
 dotenv.config()
 ffmpeg.setFfmpegPath(process.env.FFMPEG_PATH! || '/usr/bin/ffmpeg');
 
-const app = express();
+const app = express()
 
 const morganFormat = ':method :url :status :response-time ms';
 
@@ -61,4 +63,7 @@ app.use("/api/v1/notifications", NotificationRouter)
 app.use('/api/v1/voice', VoiceRouter)
 app.use('/api/v1/chats', ChatRouter)
 
-export default app;
+export const server = http.createServer(app)
+
+// Setup Socket.io with our server
+export const io = setupSocketIO(server);
