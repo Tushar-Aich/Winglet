@@ -188,8 +188,8 @@ function App() {
         </Container>
       </div>
       <div className="flex flex-row md:hidden h-screen w-full z-20">
-        <div className="absolute bottom-2 left-[50%] -translate-x-[50%]">
-          <NavigationMenu className="bg-transparent inline-block z-20 px-0 sm:px-3 rounded-full border-1 border-black dark:border-gray-300 backdrop-blur-sm">
+        <div className="absolute bottom-0 left-[50%] -translate-x-[50%]">
+          <NavigationMenu className="bg-transparent inline-block z-20 px-0 md:px-3 rounded-full border-1 border-black dark:border-gray-300 backdrop-blur-sm">
             <NavigationMenuList> 
               {Mobilelinks.slice(0, 2).map((link, idx) => (
                 <NavigationMenuItem key={idx}>

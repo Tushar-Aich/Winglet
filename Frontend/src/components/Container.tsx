@@ -86,18 +86,18 @@ const Container = ({children}: {children: React.ReactNode}) => {
     })
   };
   return (
-    <div className="w-full border-2 rounded-lg px-4 py-2 my-2 mx-3 bg-white dark:bg-black border-neutral-200 dark:border-neutral-950 grid grid-cols-1 gap-4 lg:grid-cols-3 overflow-y-hidden h-[calc(100vh-2rem)]">
+    <div className="w-full border-2 rounded-lg md:px-4 md:py-2 md:my-2 md:mx-3 bg-white dark:bg-black border-neutral-200 dark:border-neutral-950 grid grid-cols-1 gap-4 lg:grid-cols-3 overflow-y-hidden h-[calc(100vh-2rem)]">
         <div className="col-span-2 h-full overflow-y-auto">
-          <div className="p-4">
+          <div className="md:p-4">
             {children}
           </div>
         </div>
         <div className="hidden lg:flex lg:col-span-1 lg:flex-col h-full">
           <div className="grid grid-cols-1 grid-rows-2 gap-2 h-full w-full">
-            <div className="h-full p-2 overflow-y-auto max-h-[calc(50vh-2rem)]">
+            <div className="h-full md:p-2 overflow-y-auto max-h-[calc(50vh-2rem)]">
               <h1 className="font-bold text-lg text-black dark:text-white text-center pb-3 border-b-2 border-b-black dark:border-b-gray-600 sticky top-0 bg-transparent backdrop-blur-sm z-10">Trending Tweets</h1>
-              {trendingTweets.data === undefined ? (
-                <div className="text-center font-bold">
+              {trendingTweets.data?.length === 0 || trendingTweets.data === undefined ? (
+                <div className="text-center font-bold mt-4">
                   No tweets in last 24 hours
                 </div>
               ) : (

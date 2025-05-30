@@ -39,6 +39,7 @@
   --form: #8B5CF6;
   --form-light: #E5DEFF;
   --form-dark: #6E59A5;
+  --minus-20: calc(100vh - 5rem)
 }
 
 .dark {
@@ -117,6 +118,7 @@
   --color-form: var(--form);
   --color-form-light: var(--form-light);
   --color-form-dark: var(--form-dark);
+  --height-minus-20: var(--minus-20)
 }
 
 @layer base {

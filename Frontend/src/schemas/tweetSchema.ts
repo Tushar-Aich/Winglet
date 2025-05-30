@@ -8,3 +8,10 @@ export const TweetSchema = z.object({
         message: "Invalid file type",
     }).refine((file) => file.size <= 5000000, {message: "Avatar must be less than 5MB"}).optional()
 })
+
+export const MessageSchema = z.object({
+    content: z.string(),
+    media: z.instanceof(File).refine((file) => ACCEPTED_IMAGE_TYPES.includes(file.type), {
+        message: "Invalid file type",
+    }).refine((file) => file.size <= 5000000, {message: "Avatar must be less than 5MB"}).optional()
+})

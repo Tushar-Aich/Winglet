@@ -155,7 +155,7 @@ const getMessages = AsyncHandler(async (req: Request, res: Response) => {
             {sender: myId, receipent: userToChatId},
             {sender: userToChatId, receipent: myId}
         ]
-    }).skip(skip).limit(limit).sort({"createdAt": 1})
+    }).skip(skip).limit(limit).sort({createdAt: -1}).populate('sender', '_id OGName avatar')
 
     res.status(200).json(new ApiResponse(200, messages, "Messages fetched successfully"))
 })
