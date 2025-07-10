@@ -29,8 +29,6 @@ const ChatPage = () => {
   const [open, setOpen] = useState<boolean>(false)
 
   const fileRef = useRef<HTMLInputElement | null>(null)
-
-  const scrollRef = useRef<HTMLDivElement | null>(null)
   
   const { theme } = useTheme()
 
@@ -40,10 +38,15 @@ const ChatPage = () => {
   const recepientUser = user?.data
   const navigate = useNavigate()
 
-  const { ref, inView } = useInView({
-    threshold: 0,
-    root: scrollRef?.current
-  })
+  const { ref, inView } = useInView()
+
+  const bottomRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if(bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior: 'auto' })
+    }
+  }, [])
 
   const { 
     data, 
@@ -83,19 +86,6 @@ const ChatPage = () => {
     return groups
   }
   const groupedMessages = groupMessagesByDate()
-
-  const prevHighRef = useRef(0)
-
-  useEffect(() => {
-    const container = scrollRef?.current
-    if(!container) return;
-
-    if(isFetchingNextPage) prevHighRef.current = container.scrollHeight;
-    else {
-      const delta = container.scrollHeight - prevHighRef.current
-      container.scrollTop = delta
-    }
-  }, [isFetchingNextPage, data])
 
   const { register, handleSubmit, formState: { errors }, setValue } = useForm<z.infer<typeof MessageSchema>>({
     resolver: zodResolver(MessageSchema),
@@ -143,9 +133,9 @@ const ChatPage = () => {
           <h1 className="text-accent-foreground font-bold text-xl">{recepientUser?.OGName}</h1>
         </CardHeader>
         <CardContent>
-          <ScrollArea className="w-full h-[78vh] px-2" ref={scrollRef}>
+          <ScrollArea className="w-full h-[78vh] px-2">
             {Object.entries(groupedMessages).map(([label, messages]) => (
-              <div key={label} ref={ref}>
+              <div key={label}>
                 <div className="flex justify-center my-2">
                   <span className="bg-muted-foreground text-white dark:text-black text-sm px-3 py-1 rounded-full">{label}</span>
                 </div>
