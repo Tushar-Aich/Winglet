@@ -157,7 +157,9 @@ const getMessages = AsyncHandler(async (req: Request, res: Response) => {
         ]
     }).skip(skip).limit(limit).sort({"createdAt": -1}).populate('sender', '_id OGName avatar')
 
-    res.status(200).json(new ApiResponse(200, messages, "Messages fetched successfully"))
+    const reversedMessages = messages.reverse()
+
+    res.status(200).json(new ApiResponse(200, reversedMessages, "Messages fetched successfully"))
 })
 
 export { getUsers, getMessages }
