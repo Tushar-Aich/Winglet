@@ -1,6 +1,5 @@
 import { getAllTweets, getLikedTweets, getUserTweets } from "@/services/tweet";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { getMessages } from "@/services/chat";
 
 // Define Message interface (can be imported if shared)
 export interface ChatMessage {
@@ -49,15 +48,4 @@ export const useGetLikedTweets = (userId: string) => {
             return lastPage.length === 10 ? allPages.length + 1 : undefined
         }
     })
-}
-
-export const useGetChatMessages = (id: string) => {
-  return useInfiniteQuery({
-    queryKey: ['chat-messages', { id }],
-    queryFn: ({ pageParam }) => getMessages(id, { pageParam }),
-    initialPageParam: 1,
-    getNextPageParam: (lastPage, allPages) => {
-      return lastPage.length === 10 ? allPages.length + 1 : undefined
-    }
-  })
 }

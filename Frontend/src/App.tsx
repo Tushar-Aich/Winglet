@@ -1,6 +1,6 @@
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Bell, Home, Mail, Search, Bird, User2Icon } from "lucide-react"; // Add Sparkles
+import { Bell, Home, Search, User2Icon } from "lucide-react"; // Add Sparkles
 import { useState, useEffect } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
 import { useSelector } from "react-redux";
@@ -69,24 +69,10 @@ function App() {
       ),
     },
     {
-      label: "Filet",
-      href: "/home/filet",
-      icon: (
-        <Bird className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
-    },
-    {
       label: "Notification",
       href: "/home/notification",
       icon: (
         <Bell className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
-    },
-    {
-      label: "Inbox",
-      href: "/home/inbox",
-      icon: (
-        <Mail className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
   ];
@@ -106,20 +92,6 @@ function App() {
         <Search className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
-    {
-      label: "Notification",
-      href: "/home/notification",
-      icon: (
-        <Bell className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
-    },
-    {
-      label: "Inbox",
-      href: "/home/inbox",
-      icon: (
-        <Mail className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
-    }
   ];
   const [open, setOpen] = useState(false);
   return (
@@ -141,8 +113,8 @@ function App() {
               ) : (
                 <img src={Logo} alt="" className="h-5 w-5 rounded-full" />
               )}
-              <div className="mt-12 flex flex-col gap-2">
-                {links.slice(0, 3).map((link, idx) => (
+              <div className="mt-12 flex flex-col gap-2 space-y-5">
+                {links.slice(0, 2).map((link, idx) => (
                   <SidebarLink key={idx} link={link} name={link.label}/>
                 ))}
                 <div className="flex gap-2 items-center cursor-pointer">

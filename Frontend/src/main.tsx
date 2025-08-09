@@ -31,8 +31,6 @@ const CoverImage = React.lazy(() => import ("./pages/UpdateCoverImage.tsx"))
 const Bio = React.lazy(() => import("./pages/updateBio.tsx"))
 const BirthDate = React.lazy(() => import("./pages/BirthDate.tsx"))
 // const VoiceClone = React.lazy(() => import("./pages/voiceClone.tsx"))
-const Inbox = React.lazy(() => import("./pages/Inbox.tsx"))
-const ChatPage = React.lazy(() => import("./pages/ChatPage.tsx"))
 
 
 const routes = createBrowserRouter([
@@ -47,8 +45,6 @@ const routes = createBrowserRouter([
       ] },
       { path: "/home/tweets/:tweetId", element: <Tweets /> },
       { path: "/home/search", element: <Search /> },
-      { path: "/home/inbox", element: <Inbox />},
-      { path: "/home/chat/:chatId", element: <ChatPage /> }
     ],
   },
   { path: "/", element: <SignIn /> },

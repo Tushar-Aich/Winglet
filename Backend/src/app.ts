@@ -6,7 +6,6 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import ffmpeg from 'fluent-ffmpeg';
 import http from 'http'
-import { setupSocketIO } from './services/socket.service.js';
 
 dotenv.config()
 ffmpeg.setFfmpegPath(process.env.FFMPEG_PATH! || '/usr/bin/ffmpeg');
@@ -51,7 +50,6 @@ import LikeRouter from "./routes/like.routes.js"
 import CommentRouter from "./routes/comment.routes.js"
 import NotificationRouter from "./routes/notification.routes.js"
 import VoiceRouter from './routes/voice.routes.js'
-import ChatRouter from "./routes/chat.routes.js"
 
 //router declaration
 app.use("/api/v1/users", UserRouter)
@@ -61,9 +59,5 @@ app.use("/api/v1/likes", LikeRouter)
 app.use("/api/v1/comments", CommentRouter)
 app.use("/api/v1/notifications", NotificationRouter)
 app.use('/api/v1/voice', VoiceRouter)
-app.use('/api/v1/chats', ChatRouter)
 
 export const server = http.createServer(app)
-
-// Setup Socket.io with our server
-export const io = setupSocketIO(server);
