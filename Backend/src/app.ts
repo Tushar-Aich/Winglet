@@ -42,6 +42,10 @@ app.use(express.static("public"));
 
 app.use(cookieParser());
 
+app.use('/ping', (req, res) => {
+    res.send('pong')
+})
+
 //router import
 import UserRouter from './routes/user.routes.js'
 import FollowRouter from './routes/follow.routes.js'
